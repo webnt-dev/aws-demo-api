@@ -9,5 +9,5 @@ awsConfig:
 templateFile: './stack/sandbox.yml' # CloudFormation template file
 installBucketName: 'webnt-install' # S3 bucket to upload assets to (must exist)
 lambdaSources:
-  NotifyNewRecipeLambda: 'E:\\work\\AWS\\demo\\api-demo\\lambda\\notifyNewRecipe'
-  NotifyNewRecipeLambda2: 'E:\\work\\AWS\\demo\\api-demo\\lambda\\notifyNewRecipe2'
+  NotifyNewRecipeLambda: 'E:\\work\\AWS\\demo\\api-demo\\lambda\\notifyNewRecipe' # location of Lambda folder
+  NotifyNewRecipeLambda2: 'E:\\work\\AWS\\demo\\api-demo\\lambda\\notifyNewRecipe2' # location of Lambda folder

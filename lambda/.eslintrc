@@ -6,7 +6,7 @@
   ],
   "parserOptions": {
     "project": ["./tsconfig.json"], // Specify it only for TypeScript files
-		"tsconfigRootDir": "./FileModule/aws"
+		"tsconfigRootDir": "./aws"
   },
   "ignorePatterns": ["**/*.d.ts"],
 
