@@ -122,6 +122,8 @@ Queries measurest time cost of resolvers/pipelines
 * testJS1: JS resolver with pipeline with 1 function
 * testJS10: JS resolver with pipeline with 10 functions
 
+Query returns version informations. Query uses `NoneSource`, there is no resource queried, data are static or generated using `util`.
+
 #### Response data
 
 * **count**: how many request/response templates/handlers call triggered
@@ -132,12 +134,12 @@ Queries measurest time cost of resolvers/pipelines
 * **time**: Number of milliseconds all processing took
 
 
-## recipeGetById
+## recipeGetById, recipeGetById_vtl
 
 ### Query
 ```
 query {
-  r1: recipeGetById(id: "ABC") {
+  recipeGetById_vtl(id: "ABC") {
     cookingTime
     created
     id
@@ -152,7 +154,7 @@ query {
     updated
   }
 
-  r2: recipeGetById(id: "c21aadd5-910b-49c8-8d75-1f3303c33a03") {
+  recipeGetById(id: "c21aadd5-910b-49c8-8d75-1f3303c33a03") {
     cookingTime
     created
     id
@@ -207,13 +209,100 @@ query {
 }
 ```
 
+Retrieve recipe data. Query uses `RecipesTableSource` to query DynamoDB directly. 
+
+`recipeGetById` uses JS resolver, `recipeGetById_vtl` uses VTL resolver.
+
+## recipeList
+
+### Query
+```
+query {
+	recipeList(input: { limit: 2, nextToken: null }) {
+		items {
+			cookingTime
+			created
+			id
+			ingredients {
+				amount
+				name
+				unit
+				url
+			}
+			name
+			preparationTime
+			updated
+		}
+		nextToken
+	}
+}
+```
+
+### Response
+
+```
+{
+	"data": {
+		"recipeList": {
+			"items": [
+				{
+					"cookingTime": 150,
+					"created": "2023-04-30T11:54:28.315Z",
+					"id": "c21aadd5-910b-49c8-8d75-1f3303c33a03",
+					"ingredients": [
+						{
+							"amount": 1500,
+							"name": "Chicken meat & bones",
+							"unit": "g",
+							"url": "https://www.google.com/search?q=Chicken+meat+%26+bones"
+						},
+						{
+							"amount": 200,
+							"name": "Ginger",
+							"unit": "g",
+							"url": "https://www.google.com/search?q=Ginger"
+						},
+						{
+							"amount": 2,
+							"name": "Water",
+							"unit": "l",
+							"url": "https://www.google.com/search?q=Water"
+						}
+					],
+					"name": "Ramen",
+					"preparationTime": 30,
+					"updated": "2023-04-30T11:54:28.315Z"
+			},
+			{
+					"cookingTime": 10,
+					"created": "2023-04-30T08:24:01.294Z",
+					"id": "edcbc265-237c-4363-bdd9-aa2792b96852",
+					"ingredients": [
+						{
+							"amount": 300,
+							"name": "Salmon",
+							"unit": "g",
+							"url": "https://www.google.com/search?q=Salmon"
+						}
+					],
+					"name": "Salmon",
+					"preparationTime": 2,
+					"updated": "2023-04-30T08:24:01.294Z"
+				}
+			],
+			"nextToken": "AAAAAAAAAAAAAAAAAAAAAAAAAA................" 
+		}
+	}
+}
+```
+
+List recipes. Query uses `RecipesTableSource` to query DynamoDB directly. 
+
+Function showcases use of paging (limit and nextToken)
 
 
 Mutation.recipeCreate
 Mutation.recipePatch
-Query.recipeGetById
-Query.recipeGetById_vtl
-Query.recipeList
 
 Mutation.recipeCreate2
 
