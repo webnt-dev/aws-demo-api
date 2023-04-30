@@ -6,14 +6,15 @@
   "type": "module",
   "scripts": {
     "lint": "eslint --fix -c .eslintrc ./app/**/*.mts ./appsync/**/*.mts",
-		"build": "tsc --project ./tsconfig-resolvers.json",
-		"sandbox-only": "ts-node-esm --project ./tsconfig.json ./app/index.mts --config=sandbox",
+    "build": "tsc --project ./tsconfig-resolvers.json",
+    "sandbox-only": "ts-node-esm --project ./tsconfig.json ./app/index.mts --config=sandbox",
     "sandbox": "npm run lint && npm run build && npm run sandbox-only",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@aws-sdk/client-appsync": "^3.321.1",
     "@aws-sdk/client-cloudformation": "^3.279.0",
     "@aws-sdk/client-lambda": "^3.279.0",
     "@aws-sdk/client-s3": "^3.279.0",
