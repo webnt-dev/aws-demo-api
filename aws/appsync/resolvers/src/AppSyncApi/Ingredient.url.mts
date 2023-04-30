@@ -5,6 +5,7 @@ export function request() {
 }
 
 export function response(ctx: Context) {
+	// you can use util.urlEncode function
 	const name = ctx.source.name
 		.replaceAll(' ', '+')
 		.replaceAll('=', '%3D')
