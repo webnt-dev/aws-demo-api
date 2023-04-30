@@ -18,6 +18,13 @@ import {
 	// StackEvent,
 } from '@aws-sdk/client-cloudformation';
 
+// Imports for JS templates validation
+// import {
+// 	AppSyncClient,
+// 	// EvaluateCodeCommandInput,
+// 	EvaluateCodeCommand,
+// } from '@aws-sdk/client-appsync';
+
 import {
 	S3Client, S3ClientConfig,
 	PutObjectCommand, PutObjectCommandInput,
@@ -225,7 +232,45 @@ const uploadParams: PutObjectCommandInput = {
 await s3.send(new PutObjectCommand(uploadParams));
 
 
-const client = new CloudFormationClient(awsConfig);
+const cfClient = new CloudFormationClient(awsConfig);
+
+/* * /
+// JS templates evaluation
+
+const asClient = new AppSyncClient(awsConfig);
+const asCmd = new EvaluateCodeCommand({
+	code: `
+	export function request() {
+    return {};
+}
+export function response(ctx) {
+    const name = ctx.source.name
+        .replaceAll(' ', '+')
+        .replaceAll('=', '%3D')
+        .replaceAll('&', '%26')
+        .replaceAll('#', '%23');
+    return 'https://www.google.com/search?q=' + encodeURI(name); // should throw
+}
+
+	`,
+	context: JSON.stringify({
+		arguments: { },
+		source: {
+			name: 'Chicken & bones',
+		},
+		result: {},
+		request: {},
+		prev: {},
+	}),
+	runtime: {
+		name: 'APPSYNC_JS',
+		runtimeVersion: '1.0.0',
+	},
+	function: 'response',
+});
+console.log(await asClient.send(asCmd));
+/* */
+
 
 /**
  * validate template
@@ -236,7 +281,7 @@ try {
 	const validate = new ValidateTemplateCommand({
 		TemplateURL: bucketPath,
 	});
-	await client.send(validate);
+	await cfClient.send(validate);
 } catch (error) {
 	logError(error);
 	process.exit(1);
@@ -246,7 +291,7 @@ async function describeStack(stName: string) {
 	const command = new DescribeStacksCommand({
 		StackName: stName,
 	});
-	return client.send(command);
+	return cfClient.send(command);
 }
 
 /**
@@ -266,6 +311,7 @@ try {
 	}
 }
 
+// UPDATE EVENTS
 // async function describeStackState(stName: string, startDate: Date) {
 
 // 	let newStart = startDate;
@@ -337,7 +383,7 @@ if (createStack) {
 			TemplateBody: templateBody,
 			Capabilities: ['CAPABILITY_IAM', 'CAPABILITY_NAMED_IAM', 'CAPABILITY_AUTO_EXPAND'],
 		});
-		await client.send(createCommand);
+		await cfClient.send(createCommand);
 	}	catch (error) {
 		logError(error);
 		process.exit(3);
@@ -351,13 +397,13 @@ if (createStack) {
 			Capabilities: ['CAPABILITY_IAM', 'CAPABILITY_NAMED_IAM', 'CAPABILITY_AUTO_EXPAND'],
 		});
 		// const now = (new Date());
-		await client.send(updateCommand);
+		await cfClient.send(updateCommand);
 		// await describeStackState(stackName, now);
 		// console.log('AFTER');
 
 		await waitUntilStackUpdateComplete(
 			{
-				client,
+				client: cfClient,
 				maxWaitTime: 60 * 60,
 				maxDelay: 5,
 				minDelay: 5,
