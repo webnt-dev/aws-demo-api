@@ -3,7 +3,7 @@ import { util, Context, DynamoDBStringResult, DynamoDBNumberResult } from '@aws-
 export function request(ctx: Context) {
 
 	if (!ctx.prev?.result) {
-		util.error('Recipe not found.', 'FileModule::File::Patch::RecipeNotFound');
+		util.error('Recipe not found.', 'ApiDemo::Recipe::Patch::RecipeNotFound');
 	}
 
 	const patchExpression: string[] = [];

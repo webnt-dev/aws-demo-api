@@ -209,7 +209,7 @@ query {
 }
 ```
 
-Retrieve recipe data. Query uses `RecipesTableSource` to query DynamoDB directly. 
+API call retrieve recipe data. Query uses `RecipesTableSource` to query DynamoDB directly. 
 
 `recipeGetById` uses JS resolver, `recipeGetById_vtl` uses VTL resolver.
 
@@ -218,23 +218,111 @@ Retrieve recipe data. Query uses `RecipesTableSource` to query DynamoDB directly
 ### Query
 ```
 query {
-	recipeList(input: { limit: 2, nextToken: null }) {
-		items {
-			cookingTime
-			created
-			id
-			ingredients {
-				amount
-				name
-				unit
-				url
+  recipeList(input: { limit: 2, nextToken: null }) {
+    items {
+      cookingTime
+      created
+      id
+      ingredients {
+        amount
+        name
+        unit
+        url
+      }
+      name
+      preparationTime
+      updated
+    }
+    nextToken
+  }
+}
+```
+
+### Response
+
+```
+{
+  "data": {
+    "recipeList": {
+      "items": [
+        {
+          "cookingTime": 150,
+          "created": "2023-04-30T11:54:28.315Z",
+          "id": "c21aadd5-910b-49c8-8d75-1f3303c33a03",
+          "ingredients": [
+            {
+              "amount": 1500,
+              "name": "Chicken meat & bones",
+              "unit": "g",
+              "url": "https://www.google.com/search?q=Chicken+meat+%26+bones"
+            },
+            {
+              "amount": 200,
+              "name": "Ginger",
+              "unit": "g",
+              "url": "https://www.google.com/search?q=Ginger"
+            },
+            {
+              "amount": 2,
+              "name": "Water",
+              "unit": "l",
+              "url": "https://www.google.com/search?q=Water"
+            }
+          ],
+          "name": "Ramen",
+          "preparationTime": 30,
+          "updated": "2023-04-30T11:54:28.315Z"
+				},
+				{
+          "cookingTime": 10,
+          "created": "2023-04-30T08:24:01.294Z",
+          "id": "edcbc265-237c-4363-bdd9-aa2792b96852",
+          "ingredients": [
+            {
+              "amount": 300,
+              "name": "Salmon",
+              "unit": "g",
+              "url": "https://www.google.com/search?q=Salmon"
+            }
+          ],
+          "name": "Salmon",
+          "preparationTime": 2,
+          "updated": "2023-04-30T08:24:01.294Z"
+        }
+      ],
+      "nextToken": "AAAAAAAAAAAAAAAAAAAAAAAAAA................" 
+    }
+  }
+}
+```
+
+Api call list recipes. Query uses `RecipesTableSource` to query DynamoDB directly. 
+
+Function showcases use of paging (limit and nextToken)
+
+
+## recipeCreate
+
+### Query
+```
+mutation {
+	recipeCreate(input: {
+		cookingTime: 5,
+		ingredients: [
+			{
+				amount: 250,
+				name: "water"
+				unit: "ml"
+			},
+			{
+				amount: 1,
+				name: "tea bag"
+				unit: "pcs"
 			}
-			name
-			preparationTime
-			updated
-		}
-		nextToken
-	}
+		],
+		name: "Tea",
+		preparationTime: 1
+	})
 }
 ```
 
@@ -243,67 +331,83 @@ query {
 ```
 {
 	"data": {
-		"recipeList": {
-			"items": [
-				{
-					"cookingTime": 150,
-					"created": "2023-04-30T11:54:28.315Z",
-					"id": "c21aadd5-910b-49c8-8d75-1f3303c33a03",
-					"ingredients": [
-						{
-							"amount": 1500,
-							"name": "Chicken meat & bones",
-							"unit": "g",
-							"url": "https://www.google.com/search?q=Chicken+meat+%26+bones"
-						},
-						{
-							"amount": 200,
-							"name": "Ginger",
-							"unit": "g",
-							"url": "https://www.google.com/search?q=Ginger"
-						},
-						{
-							"amount": 2,
-							"name": "Water",
-							"unit": "l",
-							"url": "https://www.google.com/search?q=Water"
-						}
-					],
-					"name": "Ramen",
-					"preparationTime": 30,
-					"updated": "2023-04-30T11:54:28.315Z"
-			},
-			{
-					"cookingTime": 10,
-					"created": "2023-04-30T08:24:01.294Z",
-					"id": "edcbc265-237c-4363-bdd9-aa2792b96852",
-					"ingredients": [
-						{
-							"amount": 300,
-							"name": "Salmon",
-							"unit": "g",
-							"url": "https://www.google.com/search?q=Salmon"
-						}
-					],
-					"name": "Salmon",
-					"preparationTime": 2,
-					"updated": "2023-04-30T08:24:01.294Z"
-				}
-			],
-			"nextToken": "AAAAAAAAAAAAAAAAAAAAAAAAAA................" 
-		}
+		"recipeCreate": "74bf2e91-81e6-4a14-a08e-8ee5943d52ff"
 	}
 }
 ```
+Call creates recipe. Query uses `RecipesTableSource` to query DynamoDB directly. Should take like 250ms.
 
-List recipes. Query uses `RecipesTableSource` to query DynamoDB directly. 
+## recipeCreate2
 
-Function showcases use of paging (limit and nextToken)
+### Query
+```
+mutation {
+	recipeCreate(input: {
+		cookingTime: 5,
+		ingredients: [
+			{
+				amount: 250,
+				name: "water"
+				unit: "ml"
+			},
+			{
+				amount: 1,
+				name: "tea bag"
+				unit: "pcs"
+			}
+		],
+		name: "Tea",
+		preparationTime: 1
+	})
+}
+```
+
+### Response
+
+```
+{
+	"data": {
+		"recipeCreate": "74bf2e91-81e6-4a14-a08e-8ee5943d52ff"
+	}
+}
+```
+Call creates recipe. Query uses `RecipesTableSource` to query DynamoDB directly and then there is Lambda in pipeline (`NotifyNewRecipeLambdaSource`). 
+Lambda is written to take 1 second so the whole processing takes like 1250ms.
 
 
-Mutation.recipeCreate
-Mutation.recipePatch
+## recipeCreate3
 
-Mutation.recipeCreate2
+### Query
+```
+mutation {
+    recipePatch(id: "A", input: {
+        cookingTime: 1,
+        ingredients: [
+					{
+						amount: 250,
+						name: "water"
+						unit: "ml"
+					}
+				],
+        name: "New name",
+        preparationTime: 5
+    })
+}
+```
 
-Mutation.recipeCreate3
+### Response
+
+```
+{
+	"data": {
+		"recipePatch": true
+	}
+}
+```
+Call pathes recipe. Query uses `RecipesTableSource` to query DynamoDB directly.
+Call changes only passed (not null) properties. Properties, that are `null` are not updated.
+Call showcases pipeline and using `ctx.prev.result`. 
+
+
+
+
