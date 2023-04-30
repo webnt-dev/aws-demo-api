@@ -215,6 +215,7 @@ Resources:
 
   AppSyncApiKey:
     Type: AWS::AppSync::ApiKey
+    Description: "Development key"
     Properties:
       ApiId:
         Fn::GetAtt:
@@ -225,6 +226,7 @@ Resources:
 
   AppSyncApiKeyTest:
     Type: AWS::AppSync::ApiKey
+    Description: "Automated tests key"
     Properties:
       ApiId:
         Fn::GetAtt:
@@ -283,6 +285,21 @@ Resources:
           Ref: RecipesTable
         AwsRegion:
           Fn::Sub: "${AWS::Region}"
+
+
+  NotifyNewRecipeLambdaSource:
+    Type: AWS::AppSync::DataSource
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      Name: NotifyNewRecipeLambdaSource
+      Type: AWS_LAMBDA
+      ServiceRoleArn:
+        Fn::GetAtt: AppSyncNotifyNewRecipeLambdaRole.Arn
+      LambdaConfig:
+        LambdaFunctionArn:
+          Fn::GetAtt: NotifyNewRecipeLambda.Arn
+
 
 #################
 # AppSync - AppSyncApiQueryVersion
@@ -518,353 +535,117 @@ Resources:
         Name: "APPSYNC_JS"
         RuntimeVersion: "1.0.0"
 
-# #################
-# # AppSync - AppSyncApiMutationFileCreate
-# #################
-
-#   AppSyncApiMutationFileCreate:
-#     Type: AWS::AppSync::Resolver
-#     Properties:
-#       ApiId:
-#         Fn::GetAtt: AppSyncApi.ApiId
-#       Code: "./src/appsync/AppSyncApi/resolvers/empty.js"
-#       FieldName: fileCreate
-#       Kind: "PIPELINE"
-#       PipelineConfig:
-#         Functions:
-#           - Fn::GetAtt: AppSyncApiQueryFileGetByFilePathFunction.FunctionId
-#           - Fn::GetAtt: AppSyncApiMutationFileCreateFunction.FunctionId
-#       Runtime:
-#         Name: "APPSYNC_JS"
-#         RuntimeVersion: "1.0.0"
-#       TypeName: Mutation
-
-#   AppSyncApiMutationFileCreateFunction:
-#     Type: AWS::AppSync::FunctionConfiguration
-#     Properties:
-#       ApiId:
-#         Fn::GetAtt: AppSyncApi.ApiId
-#       FunctionVersion: "2018-05-29"
-#       Code: "./src/appsync/AppSyncApi/resolvers/Mutation.fileCreate.js"
-#       Name: "Mutation_fileCreate"
-#       DataSourceName:
-#         Fn::GetAtt: FilesTableSource.Name
-#       Runtime:
-#         Name: "APPSYNC_JS"
-#         RuntimeVersion: "1.0.0"
-
-# #################
-# # AppSync - AppSyncApiQueryFileGet
-# #################
-
-#   AppSyncApiQueryFileGet:
-#     Type: AWS::AppSync::Resolver
-#     Properties:
-#       ApiId:
-#         Fn::GetAtt: AppSyncApi.ApiId
-#       Code: "./src/appsync/AppSyncApi/resolvers/empty.js"
-#       FieldName: fileGet
-#       Kind: "PIPELINE"
-#       PipelineConfig:
-#         Functions:
-#           - Fn::GetAtt: AppSyncApiQueryFileGetFunction.FunctionId
-#       Runtime:
-#         Name: "APPSYNC_JS"
-#         RuntimeVersion: "1.0.0"
-#       TypeName: Query
-
-#   AppSyncApiQueryFileGetFunction:
-#     Type: AWS::AppSync::FunctionConfiguration
-#     Properties:
-#       ApiId:
-#         Fn::GetAtt: AppSyncApi.ApiId
-#       FunctionVersion: "2018-05-29"
-#       Code: "./src/appsync/AppSyncApi/resolvers/Query.fileGet.js"
-#       Name: "Query_fileGet"
-#       DataSourceName:
-#         Fn::GetAtt: FilesTableSource.Name
-#       Runtime:
-#         Name: "APPSYNC_JS"
-#         RuntimeVersion: "1.0.0"
-
-# #################
-# # AppSync - AppSyncApiMutationFileDelete
-# #################
-
-#   AppSyncApiMutationFileDelete:
-#     Type: AWS::AppSync::Resolver
-#     Properties:
-#       ApiId:
-#         Fn::GetAtt: AppSyncApi.ApiId
-#       Code: "./src/appsync/AppSyncApi/resolvers/empty.js"
-#       FieldName: fileDelete
-#       Kind: "PIPELINE"
-#       PipelineConfig:
-#         Functions:
-#           - Fn::GetAtt: AppSyncApiQueryFileGetFunction.FunctionId
-#           - Fn::GetAtt: AppSyncApiMutationFileDeleteFunction.FunctionId
-#           # - Fn::GetAtt: AppSyncApiQueryFileDeleteS3Function.FunctionId
-#       Runtime:
-#         Name: "APPSYNC_JS"
-#         RuntimeVersion: "1.0.0"
-#       TypeName: Mutation
-
-#   AppSyncApiMutationFileDeleteFunction:
-#     Type: AWS::AppSync::FunctionConfiguration
-#     Properties:
-#       ApiId:
-#         Fn::GetAtt: AppSyncApi.ApiId
-#       FunctionVersion: "2018-05-29"
-#       Code: "./src/appsync/AppSyncApi/resolvers/Mutation.fileDelete.js"
-#       Name: "Mutation_fileDelete"
-#       DataSourceName:
-#         Fn::GetAtt: FilesTableSource.Name
-#       Runtime:
-#         Name: "APPSYNC_JS"
-#         RuntimeVersion: "1.0.0"
-
-#   # AppSyncApiMutationFileDeleteS3Function:
-#   #   Type: AWS::AppSync::FunctionConfiguration
-#   #   Properties:
-#   #     ApiId:
-#   #       Fn::GetAtt: AppSyncApi.ApiId
-#   #     FunctionVersion: "2018-05-29"
-#   #     Code: "./src/appsync/AppSyncApi/resolvers/Mutation.fileDelete.s3.js"
-#   #     Name: "Mutation_fileDelete_s3"
-#   #     DataSourceName:
-#   #       Fn::GetAtt: UserFileBucketFunctionSource.Name
-#   #     Runtime:
-#   #       Name: "APPSYNC_JS"
-#   #       RuntimeVersion: "1.0.0"
 
 
 # #################
-# # AppSync - AppSyncApiMutationFileUpdate
+# # AppSync - AppSyncApiMutationRecipeCreate2
+# # direct connection to Lambda
 # #################
 
-#   AppSyncApiMutationFileUpdate:
-#     Type: AWS::AppSync::Resolver
-#     Properties:
-#       ApiId:
-#         Fn::GetAtt: AppSyncApi.ApiId
-#       Code: "./src/appsync/AppSyncApi/resolvers/empty.js"
-#       FieldName: fileUpdate
-#       Kind: "PIPELINE"
-#       PipelineConfig:
-#         Functions:
-#           - Fn::GetAtt: AppSyncApiQueryFileGetByFilePathFunction.FunctionId
-#           - Fn::GetAtt: AppSyncApiMutationFileUpdateXCheckFunction.FunctionId
-#           - Fn::GetAtt: AppSyncApiQueryFileGetFunction.FunctionId
-#           - Fn::GetAtt: AppSyncApiMutationFileUpdateFunction.FunctionId
-#           # - Fn::GetAtt: AppSyncApiQueryFileDeleteS3Function.FunctionId
-#       Runtime:
-#         Name: "APPSYNC_JS"
-#         RuntimeVersion: "1.0.0"
-#       TypeName: Mutation
+  AppSyncApiMutationRecipeCreate2:
+    Type: AWS::AppSync::Resolver
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      Code: "./appsync/resolvers/build/AppSyncApi/empty.mjs"
+      FieldName: recipeCreate2
+      Kind: "PIPELINE"
+      PipelineConfig:
+        Functions:
+          - Fn::GetAtt: AppSyncApiMutationRecipeCreateFunction.FunctionId
+          - Fn::GetAtt: AppSyncApiMutationRecipeCreate2NotifyFunction.FunctionId
+      Runtime:
+        Name: "APPSYNC_JS"
+        RuntimeVersion: "1.0.0"
+      TypeName: Mutation
 
-#   AppSyncApiMutationFileUpdateFunction:
-#     Type: AWS::AppSync::FunctionConfiguration
-#     Properties:
-#       ApiId:
-#         Fn::GetAtt: AppSyncApi.ApiId
-#       FunctionVersion: "2018-05-29"
-#       Code: "./src/appsync/AppSyncApi/resolvers/Mutation.fileUpdate.js"
-#       Name: "Mutation_fileUpdate"
-#       DataSourceName:
-#         Fn::GetAtt: FilesTableSource.Name
-#       Runtime:
-#         Name: "APPSYNC_JS"
-#         RuntimeVersion: "1.0.0"
-
-#   AppSyncApiMutationFileUpdateXCheckFunction:
-#     Type: AWS::AppSync::FunctionConfiguration
-#     Properties:
-#       ApiId:
-#         Fn::GetAtt: AppSyncApi.ApiId
-#       FunctionVersion: "2018-05-29"
-#       Code: "./src/appsync/AppSyncApi/resolvers/Mutation.fileUpdate_check.js"
-#       Name: "Mutation_fileUpdate"
-#       DataSourceName:
-#         Fn::GetAtt: NoneSource.Name
-#       Runtime:
-#         Name: "APPSYNC_JS"
-#         RuntimeVersion: "1.0.0"
-
-# #################
-# # AppSync - AppSyncApiQueryFileGetByFilePath
-# #################
-
-#   AppSyncApiQueryFileGetByFilePath:
-#     Type: AWS::AppSync::Resolver
-#     Properties:
-#       ApiId:
-#         Fn::GetAtt: AppSyncApi.ApiId
-#       Code: "./src/appsync/AppSyncApi/resolvers/empty.js"
-#       FieldName: fileGetByFilePath
-#       Kind: "PIPELINE"
-#       PipelineConfig:
-#         Functions:
-#           - Fn::GetAtt: AppSyncApiQueryFileGetByFilePathFunction.FunctionId
-#       Runtime:
-#         Name: "APPSYNC_JS"
-#         RuntimeVersion: "1.0.0"
-#       TypeName: Query
-
-#   AppSyncApiQueryFileGetByFilePathFunction:
-#     Type: AWS::AppSync::FunctionConfiguration
-#     Properties:
-#       ApiId:
-#         Fn::GetAtt: AppSyncApi.ApiId
-#       FunctionVersion: "2018-05-29"
-#       Code: "./src/appsync/AppSyncApi/resolvers/Query.fileGetByFilePath.js"
-#       Name: "Query_fileGetByFilePath"
-#       DataSourceName:
-#         Fn::GetAtt: FilesTableSource.Name
-#       Runtime:
-#         Name: "APPSYNC_JS"
-#         RuntimeVersion: "1.0.0"
+  AppSyncApiMutationRecipeCreate2NotifyFunction:
+    Type: AWS::AppSync::FunctionConfiguration
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      FunctionVersion: "2018-05-29"
+      Code: "./appsync/resolvers/build/AppSyncApi/Mutation.recipeCreate2.notify.mjs"
+      Name: "Mutation_recipeCreate2_notify"
+      DataSourceName:
+        Fn::GetAtt: NotifyNewRecipeLambdaSource.Name
+      Runtime:
+        Name: "APPSYNC_JS"
+        RuntimeVersion: "1.0.0"
 
 
-# #################
-# # AppSync - AppSyncApiQueryFileList
-# #################
+###################################################
+# Lambdas
+###################################################
 
-#   AppSyncApiQueryFileList:
-#     Type: AWS::AppSync::Resolver
-#     Properties:
-#       ApiId:
-#         Fn::GetAtt: AppSyncApi.ApiId
-#       Code: "./src/appsync/AppSyncApi/resolvers/empty.js"
-#       FieldName: fileList
-#       Kind: "PIPELINE"
-#       PipelineConfig:
-#         Functions:
-#           - Fn::GetAtt: AppSyncApiQueryFileListFunction.FunctionId
-#       Runtime:
-#         Name: "APPSYNC_JS"
-#         RuntimeVersion: "1.0.0"
-#       TypeName: Query
+#################
+# NotifyNewRecipeLambda
+#################
 
-#   AppSyncApiQueryFileListFunction:
-#     Type: AWS::AppSync::FunctionConfiguration
-#     Properties:
-#       ApiId:
-#         Fn::GetAtt: AppSyncApi.ApiId
-#       FunctionVersion: "2018-05-29"
-#       Code: "./src/appsync/AppSyncApi/resolvers/Query.fileList.js"
-#       Name: "Query_fileList"
-#       DataSourceName:
-#         Fn::GetAtt: FilesTableSource.Name
-#       Runtime:
-#         Name: "APPSYNC_JS"
-#         RuntimeVersion: "1.0.0"
+  # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
+  NotifyNewRecipeLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      Tags:
+        cost-allocation:
+          Fn::Sub: ${StackName}
+      Description:
+        Fn::Sub: Get file upload link (presigned link)
+      # CodeUri: s3://webnt-test-install/fileBucket-def.zip
+      Handler: build/index.handler
+      MemorySize: 512
+      Timeout: 10
+      Runtime: nodejs18.x
+      Tracing: Active
+      FunctionName: "NotifyNewRecipeLambda"
+      InlineCode: "//test"
+      # Policies: #policies to access additional resources
+      #   - AWSLambdaExecute # Managed Policy
+      #   - Version: '2012-10-17' # Policy Document
+      #     Statement:
+      #       - Effect: Allow
+      #         Action:
+      #           - s3:GetObject
+      #           - s3:PutObject
+      #           #- s3:*
+      #         Resource:
+      #           - Fn::Sub: ${UserFileBucket.Arn}
+      #           - Fn::Sub: ${UserFileBucket.Arn}/*
+      #           - Fn::Sub: ${UserFileBucket.Arn}/**/*
 
-# #################
-# # AppSync - AppSyncApiQueryFileUploadLink
-# #################
+  AppSyncNotifyNewRecipeLambdaPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: Allows AppSync to invoke Lambda
+      Path: /appsync/
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - lambda:InvokeFunction
+            Resource:
+              Fn::GetAtt: NotifyNewRecipeLambda.Arn
 
-#   AppSyncApiQueryFileUploadLink:
-#     Type: AWS::AppSync::Resolver
-#     Properties:
-#       ApiId:
-#         Fn::GetAtt: AppSyncApi.ApiId
-#       Code: "./src/appsync/AppSyncApi/resolvers/empty.js"
-#       FieldName: fileUploadLink
-#       Kind: "PIPELINE"
-#       PipelineConfig:
-#         Functions:
-#           - Fn::GetAtt: AppSyncApiQueryFileGetFunction.FunctionId
-#           - Fn::GetAtt: AppSyncApiQueryFileUploadLinkFunction.FunctionId
-#           # - Fn::GetAtt: AppSyncApiQueryFileDeleteS3Function.FunctionId
-#       Runtime:
-#         Name: "APPSYNC_JS"
-#         RuntimeVersion: "1.0.0"
-#       TypeName: Query
-
-#   AppSyncApiQueryFileUploadLinkFunction:
-#     Type: AWS::AppSync::FunctionConfiguration
-#     Properties:
-#       ApiId:
-#         Fn::GetAtt: AppSyncApi.ApiId
-#       FunctionVersion: "2018-05-29"
-#       Code: "./src/appsync/AppSyncApi/resolvers/Query.fileUploadLink.js"
-#       Name: "Query_fileUploadLink"
-#       DataSourceName:
-#         Fn::GetAtt: GetFileUploadLinkFunctionSource.Name
-#       Runtime:
-#         Name: "APPSYNC_JS"
-#         RuntimeVersion: "1.0.0"
-
-#   GetFileUploadLinkFunctionSource:
-#     Type: AWS::AppSync::DataSource
-#     Properties:
-#       ApiId:
-#         Fn::GetAtt: AppSyncApi.ApiId
-#       LambdaConfig:
-#         LambdaFunctionArn:
-#           Fn::GetAtt: GetFileUploadLinkFunction.Arn
-#       Name: GetFileUploadLinkFunction
-#       Type: AWS_LAMBDA
-#       ServiceRoleArn:
-#         Fn::GetAtt: GetFileUploadLinkFunctionRole2.Arn
-
-#   GetFileUploadLinkFunctionRole2:
-#     Type: AWS::IAM::Role
-#     Properties:
-#       Tags:
-#         - Key: "cost-allocation"
-#           Value:
-#             Fn::Sub: ${StackName}
-#       RoleName:
-#         Fn::Sub: ${StackName}-${EnvironmentIdentifier}-appsync-userfile-uploadlink-bucket-function
-#       ManagedPolicyArns:
-#         - arn:aws:iam::aws:policy/service-role/AWSLambdaRole
-#       AssumeRolePolicyDocument:
-#         Version: 2012-10-17
-#         Statement:
-#           - Effect: Allow
-#             Action:
-#               - sts:AssumeRole
-#             Principal:
-#               Service:
-#                 - appsync.amazonaws.com
-
-
-# ###################################################
-# # Lambdas
-# ###################################################
-
-# #################
-# # GetFileUploadLinkFunction
-# #################
-
-#   # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
-#   GetFileUploadLinkFunction:
-#     Type: AWS::Serverless::Function
-#     Properties:
-#       Tags:
-#         cost-allocation:
-#           Fn::Sub: ${StackName}
-#       Description:
-#         Fn::Sub: Get file upload link (presigned link)
-#       # CodeUri: s3://webnt-test-install/fileBucket-def.zip
-#       Handler: build/index.handler
-#       MemorySize: 512
-#       Timeout: 10
-#       Runtime: nodejs18.x
-#       Tracing: Active
-#       FunctionName: "GetFileUploadLinkFunction"
-#       InlineCode: "//test"
-#       Policies:
-#         - AWSLambdaExecute # Managed Policy
-#         - Version: '2012-10-17' # Policy Document
-#           Statement:
-#             - Effect: Allow
-#               Action:
-#                 - s3:GetObject
-#                 - s3:PutObject
-#                 #- s3:*
-#               Resource:
-#                 - Fn::Sub: ${UserFileBucket.Arn}
-#                 - Fn::Sub: ${UserFileBucket.Arn}/*
-#                 - Fn::Sub: ${UserFileBucket.Arn}/**/*
+  AppSyncNotifyNewRecipeLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Tags:
+        - Key: "cost-allocation"
+          Value:
+            Fn::Sub: ${StackName}
+      RoleName:
+        Fn::Sub: ${StackName}-${EnvironmentIdentifier}-appsync-notifynewrecipe-lambda-role
+      ManagedPolicyArns:
+        - Ref: AppSyncNotifyNewRecipeLambdaPolicy
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - sts:AssumeRole
+            Principal:
+              Service:
+                - appsync.amazonaws.com

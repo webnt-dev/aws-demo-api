@@ -1,4 +1,4 @@
-mutation MyMutation {
+mutation RecipeCreateOne {
   recipeCreate(input: {
     cookingTime: 150,
     name: "Ramen",
@@ -11,7 +11,7 @@ mutation MyMutation {
   })
 }
 
-mutation MyMutation {
+mutation RecipeCreateTwo {
   r1: recipeCreate(input: {
     cookingTime: 30,
     name: "Thai",
@@ -33,3 +33,14 @@ mutation MyMutation {
   })
 }
 
+mutation RecipePatch {
+  recipePatch(
+		id: "",
+		input: {
+			cookingTime: 1,
+			ingredients: []
+			name: "New name",
+			preparationTime: 2
+		}
+	)
+}

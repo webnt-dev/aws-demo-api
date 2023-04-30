@@ -38,6 +38,12 @@ export function request(ctx: Context) {
 		patchValues[':name'] = util.dynamodb.toDynamoDB<string>(ctx.args.input.name);
 	}
 
+	if (ctx.args.input.ingredients) {
+		patchExpression.push('#ingredients = :ingredients');
+		patchNames['#ingredients'] = 'ingredients';
+		patchValues[':ingredients'] = util.dynamodb.toDynamoDB<string>(ctx.args.input.ingredients);
+	}
+
 	if (patchExpression.length === 0) {
 		util.error('Nothing to patch.', 'ApiDemo::Recipe::Patch::InvalidInput');
 	}

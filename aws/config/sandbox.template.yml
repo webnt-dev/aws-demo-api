@@ -8,5 +8,5 @@ awsConfig:
     secretAccessKey: 'someSecretKey' # account secret key
 templateFile: './stack/sandbox.yml' # CloudFormation template file
 installBucketName: 'webnt-install' # S3 bucket to upload assets to (must exist)
-#lambdaSources:
-#  GetFileUploadLinkFunction: 'E:\\work\\AWS\\modules\\FileModule\\lambda\\getFileUploadLink'
+lambdaSources:
+  NotifyNewRecipeLambda: 'E:\\work\\AWS\\demo\\api-demo\\lambda\\notifyNewRecipe'

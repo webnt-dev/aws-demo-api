@@ -1,0 +1,4 @@
+type RecipeCreate2 {
+	result: Boolean!
+	id: ID!
+}

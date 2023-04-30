@@ -14,7 +14,9 @@ Repository contains AWS resources to create basic API demo application:
 
 Rename file to just `sandbox.yml` and fill your own information (region, client key, secret key).
 
-Bucked specified as `installBucketName` must already exists (cannot be created by this process)
+Update paths for `lambdaSources`.
+
+Bucked specified as `installBucketName` must already exists (cannot be created by this process).
 
 ### aws/stack/sandbox.yml
 

@@ -4,6 +4,9 @@ input RecipePatchInput {
 	# Cooking time in minutes
 	cookingTime: Int
 
+	# Recipe ingredients
+	ingredients: [IngredientInput!]
+
 	# Recipe name
 	name: String
 
