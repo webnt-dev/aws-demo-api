@@ -213,7 +213,7 @@ Resources:
       #   AuthenticationType: AWS_IAM
       AuthenticationType: API_KEY
 
-  AppSyncApiKey:
+  AppSyncApiDevKey:
     Type: AWS::AppSync::ApiKey
     Description: "Development key"
     Properties:
@@ -221,10 +221,10 @@ Resources:
         Fn::GetAtt:
           - AppSyncApi
           - ApiId
-      # Sat Apr 05 2024 00:00:00 GMT+0000
-      Expires: 1712181600
+      # 2024-04-03T22:01:40.000Z
+      Expires: 1712181700
 
-  AppSyncApiKeyTest:
+  AppSyncApiTestKey:
     Type: AWS::AppSync::ApiKey
     Description: "Automated tests key"
     Properties:
@@ -232,8 +232,8 @@ Resources:
         Fn::GetAtt:
           - AppSyncApi
           - ApiId
-      # Sat Apr 05 2024 00:00:00 GMT+0000
-      Expires: 1712181600
+      # 2024-04-05T04:06:40.000Z
+      Expires: 1712290000
 
   AppSyncCloudWatchRole:
     Type: AWS::IAM::Role
@@ -575,6 +575,44 @@ Resources:
         Name: "APPSYNC_JS"
         RuntimeVersion: "1.0.0"
 
+# #################
+# # AppSync - AppSyncApiMutationRecipeCreate3
+# # SQS connection to Lambda
+# #################
+
+  AppSyncApiMutationRecipeCreate3:
+    Type: AWS::AppSync::Resolver
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      Code: "./appsync/resolvers/build/AppSyncApi/empty.mjs"
+      FieldName: recipeCreate3
+      Kind: "PIPELINE"
+      PipelineConfig:
+        Functions:
+          - Fn::GetAtt: AppSyncApiMutationRecipeCreateFunction.FunctionId
+          - Fn::GetAtt: AppSyncApiMutationRecipeCreate3NotifyFunction.FunctionId
+      Runtime:
+        Name: "APPSYNC_JS"
+        RuntimeVersion: "1.0.0"
+      TypeName: Mutation
+
+  AppSyncApiMutationRecipeCreate3NotifyFunction:
+    Type: AWS::AppSync::FunctionConfiguration
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      FunctionVersion: "2018-05-29"
+      Code: "./appsync/resolvers/build/AppSyncApi/Mutation.recipeCreate3.notify.mjs"
+      Name: "Mutation_recipeCreate3_notify"
+      DataSourceName:
+        Fn::GetAtt: NotifyNewRecipeLambda2SQSSource.Name
+      Runtime:
+        Name: "APPSYNC_JS"
+        RuntimeVersion: "1.0.0"
+
 
 ###################################################
 # Lambdas
@@ -595,25 +633,12 @@ Resources:
         Fn::Sub: Get file upload link (presigned link)
       # CodeUri: s3://webnt-test-install/fileBucket-def.zip
       Handler: build/index.handler
-      MemorySize: 512
+      MemorySize: 128
       Timeout: 10
       Runtime: nodejs18.x
       Tracing: Active
       FunctionName: "NotifyNewRecipeLambda"
       InlineCode: "//test"
-      # Policies: #policies to access additional resources
-      #   - AWSLambdaExecute # Managed Policy
-      #   - Version: '2012-10-17' # Policy Document
-      #     Statement:
-      #       - Effect: Allow
-      #         Action:
-      #           - s3:GetObject
-      #           - s3:PutObject
-      #           #- s3:*
-      #         Resource:
-      #           - Fn::Sub: ${UserFileBucket.Arn}
-      #           - Fn::Sub: ${UserFileBucket.Arn}/*
-      #           - Fn::Sub: ${UserFileBucket.Arn}/**/*
 
   AppSyncNotifyNewRecipeLambdaPolicy:
     Type: AWS::IAM::ManagedPolicy
@@ -649,3 +674,145 @@ Resources:
             Principal:
               Service:
                 - appsync.amazonaws.com
+
+#################
+# NotifyNewRecipeLambda2
+#################
+
+  # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
+  NotifyNewRecipeLambda2:
+    Type: AWS::Serverless::Function
+    Properties:
+      Tags:
+        cost-allocation:
+          Fn::Sub: ${StackName}
+      Description:
+        Fn::Sub: Get file upload link (presigned link)
+      # CodeUri: s3://webnt-test-install/fileBucket-def.zip
+      Handler: build/index.handler
+      MemorySize: 128
+      Timeout: 10
+      Runtime: nodejs18.x
+      Tracing: Active
+      FunctionName: "NotifyNewRecipeLambda2"
+      InlineCode: "//test"
+      Policies: #policies to access additional resources
+        - AWSLambdaExecute # Managed Policy
+        - Version: '2012-10-17' # Policy Document
+          Statement:
+            - Effect: Allow
+              Action:
+                - sqs:ReceiveMessage
+                - sqs:DeleteMessage
+                - sqs:GetQueueAttributes
+              Resource:
+                - Fn::Sub: ${NotifyNewRecipeLambda2SQS.Arn}
+
+
+###################################################
+# SQS
+###################################################
+
+################
+# NotifyNewRecipeLambdaSQS
+################
+  NotifyNewRecipeLambda2SQS:
+    Type: AWS::SQS::Queue
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      Tags:
+        - Key: "cost-allocation"
+          Value:
+            Fn::Sub: ${StackName}
+      QueueName:
+        Fn::Sub: ${StackName}-${EnvironmentIdentifier}-notifynewrecipe2-sqs
+      MessageRetentionPeriod: 3600 # 1 hour
+      RedrivePolicy:
+        deadLetterTargetArn:
+          Fn::GetAtt:
+            - NotifyNewRecipeLambda2SQSDeadletterQueue
+            - Arn
+        maxReceiveCount: 3 # number of deliveries per 5 minutes until 1 hour
+      VisibilityTimeout: 300 # 5 minutes
+
+  NotifyNewRecipeLambda2SQSDeadletterQueue:
+    Type: AWS::SQS::Queue
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      Tags:
+        - Key: "cost-allocation"
+          Value:
+            Fn::Sub: ${StackName}
+      QueueName:
+        Fn::Sub: ${StackName}-${EnvironmentIdentifier}-notifynewrecipe2-sqs-deadletter
+      MessageRetentionPeriod: 1209600 # 14 days
+
+  # SQS Function Mapping
+  NotifyNewRecipeLambda2SQSEventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: 1
+      Enabled: true
+      EventSourceArn:
+        Fn::GetAtt:
+          - NotifyNewRecipeLambda2SQS
+          - Arn
+      FunctionName:
+        Fn::GetAtt:
+          - NotifyNewRecipeLambda2
+          - Arn
+
+  NotifyNewRecipeLambda2SQSPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: Allows AppSync to send an SQS message to the Planner queue
+      Path: /appsync/
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - sqs:SendMessage
+            Resource:
+              - Fn::Sub: ${NotifyNewRecipeLambda2SQS.Arn}
+
+  AppSyncNotifyNewRecipeLambda2SQSRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Tags:
+        - Key: "cost-allocation"
+          Value: "MedicalProcedure"
+      RoleName:
+        Fn::Sub: ${StackName}-${EnvironmentIdentifier}-appsync-notifynewrecipelambda2sqs-sqs
+      ManagedPolicyArns:
+        - Ref: NotifyNewRecipeLambda2SQSPolicy
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - sts:AssumeRole
+            Principal:
+              Service:
+                - appsync.amazonaws.com
+
+  NotifyNewRecipeLambda2SQSSource:
+    Type: AWS::AppSync::DataSource
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      Name: PlannerSqsSource
+      Type: HTTP
+      ServiceRoleArn:
+        Fn::GetAtt: AppSyncNotifyNewRecipeLambda2SQSRole.Arn
+      HttpConfig:
+        Endpoint:
+          Fn::Sub: "https://sqs.${AWS::Region}.amazonaws.com/"
+        AuthorizationConfig:
+          AuthorizationType: "AWS_IAM"
+          AwsIamConfig:
+            SigningRegion:
+              Fn::Sub: "${AWS::Region}"
+            SigningServiceName: "sqs"

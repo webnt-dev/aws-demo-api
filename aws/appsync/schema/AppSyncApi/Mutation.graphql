@@ -1,6 +1,7 @@
 type Mutation {
   recipeCreate(input: RecipeCreateInput!): ID!
 	recipeCreate2(input: RecipeCreateInput!): RecipeCreate2!
+	recipeCreate3(input: RecipeCreateInput!): ID!
 	recipePatch(id:ID!, input: RecipePatchInput!): Boolean!
 	recipeDelete(id:ID!): Boolean!
 }

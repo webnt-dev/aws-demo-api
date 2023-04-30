@@ -7,7 +7,7 @@ export const handler = async (event: Recipe) => {
 	console.log(JSON.stringify(event));
 	await new Promise((r) => {
 		setInterval(() => {
-			r(undefined)
+			r(undefined);
 		}, 1000);
 	});
 	const result = {

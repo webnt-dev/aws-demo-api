@@ -6,7 +6,7 @@
   ],
   "parserOptions": {
     "project": ["./tsconfig.json"], // Specify it only for TypeScript files
-		"tsconfigRootDir": "E:\\work\\AWS\\modules\\FileModule\\lambda\\getFileUploadLink",
+		"tsconfigRootDir": "E:\\work\\AWS\\demo\\api-demo\\lambda\\notifyNewRecipe",
 		"sourceType": "module"
   },
   "ignorePatterns": ["**/*.d.ts"],
