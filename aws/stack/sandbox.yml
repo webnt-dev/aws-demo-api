@@ -262,7 +262,6 @@ Resources:
           - ApiId
       Definition: './appsync/schema/AppSyncApi/*.graphql'
 
-
   NoneSource:
     Type: AWS::AppSync::DataSource
     Properties:
