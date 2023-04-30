@@ -9,7 +9,7 @@ Repository contains AWS resources to create basic API demo application:
 
 ### aws/config/sandbox.template.yml
 
-Rename file to just "sandbox.yml" and fill your own information (region, client key, secret key)
+Rename file to just `sandbox.yml` and fill your own information (region, client key, secret key)
 
 ### aws/stack/sandbox.yml
 
