@@ -8,7 +8,7 @@
     "project": ["./tsconfig.json", "./tsconfig-resolvers.json"], // Specify it only for TypeScript files
 		"tsconfigRootDir": "./"
   },
-  "ignorePatterns": ["**/*.d.ts"],
+  "ignorePatterns": ["**/*.d.ts", "**/*.mjs"],
 
   "rules": {
     "class-methods-use-this": ["off"],
@@ -49,8 +49,8 @@
     ],
 		"no-tabs": "off",
     "no-underscore-dangle": "off",
-    "object-curly-newline": ["error", { "minProperties": 7, "consistent": true,  }],
-    "object-property-newline": ["error", { "allowAllPropertiesOnSameLine": true, }],
+    "object-curly-newline": ["error", { "minProperties": 7, "consistent": true }],
+    "object-property-newline": ["error", { "allowAllPropertiesOnSameLine": true }],
     "operator-linebreak": ["warn", "after"],
     "padded-blocks": ["off"],
     "prefer-destructuring": ["off"],

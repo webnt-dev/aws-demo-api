@@ -7,4 +7,7 @@
 	"include": [
 		"./appsync/resolvers/src/**/*.mts"
 	],
+	"exclude": [
+		"./appsync/resolvers/build/**/*.mjs"
+	],
 }
