@@ -4,12 +4,18 @@ Repository contains AWS resources to create basic API demo application:
 
 * AppSync GraphQL service
 * Schema and resolvers for GraphQL
+	* resolvers javaScript and VTL
+	* direct resolvers (using VTL) and pipelines using JavaScript
+	* JS resolvers validation (just commented example)
+	
 
 ## Configuration
 
 ### aws/config/sandbox.template.yml
 
-Rename file to just `sandbox.yml` and fill your own information (region, client key, secret key)
+Rename file to just `sandbox.yml` and fill your own information (region, client key, secret key).
+
+Bucked specified as `installBucketName` must already exists (cannot be created by this process)
 
 ### aws/stack/sandbox.yml
 
@@ -19,6 +25,16 @@ File contains the stack itself
 
 1. run `npm install` in all directories (aws, all lambda directories, tests)
 2. you can install the stack from `aws` directory running `npm run sandbox`
+
+### What does it do?
+
+1. runs linters
+2. compiles TS resolvers to JS
+3. build CloudFormation template from resources (graphql, JS resolvers and VTL resolvers)
+4. validates the template
+5. created or updates stack
+6. zips Lambdas code and copies those into installation bucket
+7. update Lambdas code
 
 ## Testing
 
