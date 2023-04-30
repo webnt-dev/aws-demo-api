@@ -272,8 +272,8 @@ query {
           "name": "Ramen",
           "preparationTime": 30,
           "updated": "2023-04-30T11:54:28.315Z"
-				},
-				{
+        },
+        {
           "cookingTime": 10,
           "created": "2023-04-30T08:24:01.294Z",
           "id": "edcbc265-237c-4363-bdd9-aa2792b96852",
@@ -306,23 +306,23 @@ Function showcases use of paging (limit and nextToken)
 ### Query
 ```
 mutation {
-	recipeCreate(input: {
-		cookingTime: 5,
-		ingredients: [
-			{
-				amount: 250,
-				name: "water"
-				unit: "ml"
-			},
-			{
-				amount: 1,
-				name: "tea bag"
-				unit: "pcs"
-			}
-		],
-		name: "Tea",
-		preparationTime: 1
-	})
+  recipeCreate(input: {
+    cookingTime: 5,
+    ingredients: [
+      {
+        amount: 250,
+        name: "water"
+        unit: "ml"
+      },
+      {
+        amount: 1,
+        name: "tea bag"
+        unit: "pcs"
+      }
+    ],
+    name: "Tea",
+    preparationTime: 1
+  })
 }
 ```
 
@@ -330,9 +330,9 @@ mutation {
 
 ```
 {
-	"data": {
-		"recipeCreate": "74bf2e91-81e6-4a14-a08e-8ee5943d52ff"
-	}
+  "data": {
+    "recipeCreate": "74bf2e91-81e6-4a14-a08e-8ee5943d52ff"
+  }
 }
 ```
 Call creates recipe. Query uses `RecipesTableSource` to query DynamoDB directly. Should take like 250ms.
@@ -342,23 +342,23 @@ Call creates recipe. Query uses `RecipesTableSource` to query DynamoDB directly.
 ### Query
 ```
 mutation {
-	recipeCreate2(input: {
-		cookingTime: 5,
-		ingredients: [
-			{
-				amount: 250,
-				name: "water"
-				unit: "ml"
-			},
-			{
-				amount: 1,
-				name: "tea bag"
-				unit: "pcs"
-			}
-		],
-		name: "Tea",
-		preparationTime: 1
-	})
+  recipeCreate2(input: {
+    cookingTime: 5,
+    ingredients: [
+      {
+        amount: 250,
+        name: "water"
+        unit: "ml"
+      },
+      {
+        amount: 1,
+        name: "tea bag"
+        unit: "pcs"
+      }
+    ],
+    name: "Tea",
+    preparationTime: 1
+  })
 }
 ```
 
@@ -366,9 +366,9 @@ mutation {
 
 ```
 {
-	"data": {
-		"recipeCreate": "74bf2e91-81e6-4a14-a08e-8ee5943d52ff"
-	}
+  "data": {
+    "recipeCreate": "74bf2e91-81e6-4a14-a08e-8ee5943d52ff"
+  }
 }
 ```
 Call creates recipe. Query uses `RecipesTableSource` to query DynamoDB directly and then there is Lambda in pipeline (`NotifyNewRecipeLambdaSource`). 
@@ -380,23 +380,23 @@ Lambda is written to take 1 second so the whole processing takes like 1250ms.
 ### Query
 ```
 mutation {
-	recipeCreate3(input: {
-		cookingTime: 5,
-		ingredients: [
-			{
-				amount: 250,
-				name: "water"
-				unit: "ml"
-			},
-			{
-				amount: 1,
-				name: "tea bag"
-				unit: "pcs"
-			}
-		],
-		name: "Tea",
-		preparationTime: 1
-	})
+  recipeCreate3(input: {
+    cookingTime: 5,
+    ingredients: [
+      {
+        amount: 250,
+        name: "water"
+        unit: "ml"
+      },
+      {
+        amount: 1,
+        name: "tea bag"
+        unit: "pcs"
+      }
+    ],
+    name: "Tea",
+    preparationTime: 1
+  })
 }
 ```
 
@@ -404,9 +404,9 @@ mutation {
 
 ```
 {
-	"data": {
-		"recipeCreate": "74bf2e91-81e6-4a14-a08e-8ee5943d52ff"
-	}
+  "data": {
+    "recipeCreate": "74bf2e91-81e6-4a14-a08e-8ee5943d52ff"
+  }
 }
 ```
 Call creates recipe. Query uses `RecipesTableSource` to query DynamoDB directly and then there is SQS in pipeline (`NotifyNewRecipeLambda2SQSSource`). 
