@@ -8,7 +8,6 @@ Repository contains AWS resources to create basic API demo application:
 	* direct resolvers (using VTL) and pipelines using JavaScript
 	* JS resolvers validation (just commented example)
 	
-
 ## Configuration
 
 ### aws/config/sandbox.template.yml
@@ -35,6 +34,22 @@ File contains the stack itself
 5. created or updates stack
 6. zips Lambdas code and copies those into installation bucket
 7. update Lambdas code
+
+### CF template building
+
+#### AWS::AppSync::GraphQLSchema
+
+GraphQL schema is build by joining together all files from `Definition` property
+
+#### AWS::AppSync::Resolver (JS)
+
+For JS: File referenced in `Code` is used
+For VTL: Files referenced in `RequestMappingTemplate` and `ResponseMappingTemplate` are used
+
+#### AWS::AppSync::FunctionConfiguration (JS)
+
+For JS: File referenced in `Code` is used
+For VTL: Files referenced in `RequestMappingTemplate` and `ResponseMappingTemplate` are used
 
 ## Testing
 
