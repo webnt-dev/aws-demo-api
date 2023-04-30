@@ -1,5 +1,7 @@
 # aws-demo-api
 
+![Architecture](./doc/aws-demo-api.drawio.png)
+
 Repository contains AWS resources to create basic API demo application:
 
 * AppSync GraphQL service
