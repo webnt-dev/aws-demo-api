@@ -18,58 +18,6 @@ Parameters:
 Resources:
 
 
-# ###################################################
-# # S3
-# ###################################################
-
-# #################
-# # UserFileBucket
-# #################
-
-#   UserFileBucket:
-#     Type: AWS::S3::Bucket
-#     DeletionPolicy: Retain
-#     Properties:
-#       # AccessControl: PublicRead
-#       BucketName:
-#         Fn::Sub: ${StackName}-${EnvironmentIdentifier}-userfiles
-#       CorsConfiguration:
-#         CorsRules:
-#           - AllowedHeaders:
-#               - '*'
-#             AllowedMethods:
-#               - GET
-#               - PUT
-#               # - POST
-#               # - DELETE
-#             AllowedOrigins:
-#               - '*'
-#             ExposedHeaders:
-#               - Date
-#             MaxAge: 3600
-#       # PublicAccessBlockConfiguration:
-#       #   BlockPublicAcls : false
-#       #   BlockPublicPolicy : false
-#       #   IgnorePublicAcls : false
-#       #   RestrictPublicBuckets : false
-
-#   UserFileBucketPolicy2:
-#     Type: AWS::S3::BucketPolicy
-#     Properties:
-#       Bucket:
-#         Ref: UserFileBucket
-#       PolicyDocument:
-#         Version: "2012-10-17"
-#         Statement:
-#           - Effect: Allow
-#             Action:
-#               - "s3:GetObject"
-#             Resource:
-#               - Fn::Sub: "${UserFileBucket.Arn}/*"
-#             Principal: "*"
-
-
-
 ###################################################
 # DynamoDb
 ###################################################
@@ -77,6 +25,8 @@ Resources:
 #################
 # DynamoDb - RecipesTable
 #################
+
+  # basic DynamoDB table to store recipes in
   RecipesTable:
     Type: AWS::DynamoDB::Table
     DeletionPolicy: Retain
@@ -100,22 +50,6 @@ Resources:
           KeyType: HASH
       BillingMode: PAY_PER_REQUEST
       GlobalSecondaryIndexes:
-        # already in idUser-path-index
-        # - IndexName: idUser-index
-        #   KeySchema:
-        #     - AttributeName: idUser
-        #       KeyType: HASH
-        #   Projection:
-        #     ProjectionType: ALL
-        #parent is actually just path...
-        # - IndexName: idUser-idParent-index
-        #   KeySchema:
-        #     - AttributeName: idUser
-        #       KeyType: HASH
-        #     - AttributeName: idParent
-        #       KeyType: RANGE
-        #   Projection:
-        #     ProjectionType: ALL
         - IndexName: status-created-index
           KeySchema:
             - AttributeName: status
@@ -125,6 +59,7 @@ Resources:
           Projection:
             ProjectionType: ALL
 
+  # Policy to access RecipesTable
   AppSyncRecipesTablePolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
@@ -140,12 +75,10 @@ Resources:
               - dynamodb:DeleteItem
               - dynamodb:UpdateItem
               - dynamodb:Query
-              # - dynamodb:Scan
-              # - dynamodb:BatchGetItem
-              # - dynamodb:BatchWriteItem
             Resource:
               Fn::Sub: '${RecipesTable.Arn}*'
 
+  # Role having the policy to access RecipesTable
   AppSyncRecipesTableRole:
     Type: AWS::IAM::Role
     Properties:
@@ -167,18 +100,6 @@ Resources:
               Service:
                 - appsync.amazonaws.com
 
-
-
-  # NoneSource:
-  #   Type: AWS::AppSync::DataSource
-  #   Properties:
-  #     ApiId:
-  #       Fn::GetAtt: AppSyncApi.ApiId
-  #     Name: NoneSource
-  #     Type: NONE
-
-
-
 #######################################################
 # AppSync
 #######################################################
@@ -186,6 +107,8 @@ Resources:
 #################
 # AppSync - AppSyncApi
 #################
+
+  # AppSync GraphQL component
   AppSyncApi:
     Type: AWS::AppSync::GraphQLApi
     Properties:
@@ -201,18 +124,9 @@ Resources:
           Fn::GetAtt: AppSyncCloudWatchRole.Arn
         ExcludeVerboseContent: FALSE
         FieldLogLevel: ERROR
-      # AuthenticationType: AWS_IAM
-      # AuthenticationType: AMAZON_COGNITO_USER_POOLS
-      # UserPoolConfig:
-      #   AwsRegion: "eu-central-1"
-      #   DefaultAction: ALLOW
-      #   UserPoolId:
-      #     Ref: UserPool
-      # # https://youtu.be/7PBizBLaUoU?t=840
-      # AdditionalAuthenticationProviders:
-      #   AuthenticationType: AWS_IAM
       AuthenticationType: API_KEY
 
+  # Key to access AppSync using `x-api-key` header
   AppSyncApiDevKey:
     Type: AWS::AppSync::ApiKey
     Description: "Development key"
@@ -224,6 +138,7 @@ Resources:
       # 2024-04-03T22:01:40.000Z
       Expires: 1712181700
 
+  # Key to access AppSync using `x-api-key` header
   AppSyncApiTestKey:
     Type: AWS::AppSync::ApiKey
     Description: "Automated tests key"
@@ -235,6 +150,7 @@ Resources:
       # 2024-04-05T04:06:40.000Z
       Expires: 1712290000
 
+  # Role to write AppSync logs to CloudWatch
   AppSyncCloudWatchRole:
     Type: AWS::IAM::Role
     Properties:
@@ -254,6 +170,7 @@ Resources:
               Service:
                 - appsync.amazonaws.com
 
+  # GraphQL schema
   AppSyncApiSchema:
     Type: AWS::AppSync::GraphQLSchema
     Properties:
@@ -261,8 +178,9 @@ Resources:
         Fn::GetAtt:
           - AppSyncApi
           - ApiId
-      Definition: './appsync/schema/AppSyncApi/*.graphql'
+      Definition: './appsync/schema/AppSyncApi/*.graphql' # this will be filled with all files in the path using installation script
 
+  # AppSync none/void/blank/whatever source, if you do not need to access any resource
   NoneSource:
     Type: AWS::AppSync::DataSource
     Properties:
@@ -271,6 +189,7 @@ Resources:
       Name: NoneSource
       Type: NONE
 
+  # AppSync DynamoDB table source
   RecipesTableSource:
     Type: AWS::AppSync::DataSource
     Properties:
@@ -286,7 +205,7 @@ Resources:
         AwsRegion:
           Fn::Sub: "${AWS::Region}"
 
-
+  # AppSync Lambda source
   NotifyNewRecipeLambdaSource:
     Type: AWS::AppSync::DataSource
     Properties:
@@ -305,13 +224,14 @@ Resources:
 # AppSync - AppSyncApiQueryVersion
 #################
 
+  # Resolver for Query.version API call
   AppSyncApiQueryVersion:
     Type: AWS::AppSync::Resolver
     DependsOn: AppSyncApiSchema
     Properties:
       ApiId:
         Fn::GetAtt: AppSyncApi.ApiId
-      Code: "./appsync/resolvers/build/AppSyncApi/empty.mjs"
+      Code: "./appsync/resolvers/build/AppSyncApi/empty.mjs" # this will be filled with content of the file using installation script
       FieldName: version
       Kind: "PIPELINE"
       PipelineConfig:
@@ -322,6 +242,7 @@ Resources:
         RuntimeVersion: "1.0.0"
       TypeName: Query
 
+  # Resolver pipeline function
   AppSyncApiQueryVersionFunction:
     Type: AWS::AppSync::FunctionConfiguration
     DependsOn: AppSyncApiSchema
@@ -329,7 +250,7 @@ Resources:
       ApiId:
         Fn::GetAtt: AppSyncApi.ApiId
       FunctionVersion: "2018-05-29"
-      Code: "./appsync/resolvers/build/AppSyncApi/Query.version.mjs"
+      Code: "./appsync/resolvers/build/AppSyncApi/Query.version.mjs" # this will be filled with content of the file using installation script
       Name: "Query_version"
       DataSourceName:
         Fn::GetAtt: NoneSource.Name
@@ -377,6 +298,9 @@ Resources:
 # # AppSync - AppSyncApiMutationRecipePatch
 # #################
 
+  # Resolver for Mutation.recipePatch APi call
+  # Practical example of pipeline (we check for existence of recipe before updating it)
+  # And we actually reuse already defined function for that
   AppSyncApiMutationRecipePatch:
     Type: AWS::AppSync::Resolver
     DependsOn: AppSyncApiSchema
@@ -450,6 +374,7 @@ Resources:
 # AppSync - AppSyncApiQueryRecipeGetByIdVTL
 #################
 
+  # Resolver for Query.recipeGetById_vtl API call using VTL (no pipeline needed)
   AppSyncApiQueryRecipeGetByIdVTL:
     Type: AWS::AppSync::Resolver
     DependsOn: AppSyncApiSchema
@@ -467,6 +392,7 @@ Resources:
 # AppSync - AppSyncApiQueryTestVTL1
 #################
 
+  # Resolver for Query.testVTL1 API call to test how long 1 VTL call takes
   AppSyncApiQueryTestVTL1:
     Type: AWS::AppSync::Resolver
     DependsOn: AppSyncApiSchema
@@ -497,6 +423,7 @@ Resources:
 # AppSync - AppSyncApiQueryTestVTL10
 #################
 
+  # Resolver for Query.testVTL10 API call to test how long 10 VTL calls take
   AppSyncApiQueryTestVTL10:
     Type: AWS::AppSync::Resolver
     DependsOn: AppSyncApiSchema
@@ -642,6 +569,7 @@ Resources:
 # AppSync - AppSyncApiQueryTestJS1
 #################
 
+  # Resolver for Query.testJS1 API call to test how long 1 JS pipeline takes
   AppSyncApiQueryTestJS1:
     Type: AWS::AppSync::Resolver
     DependsOn: AppSyncApiSchema
@@ -678,6 +606,7 @@ Resources:
 # AppSync - AppSyncApiQueryTestJS10
 #################
 
+  # Resolver for Query.testJS10 API call to test how long 10 JS pipelines take
   AppSyncApiQueryTestJS10:
     Type: AWS::AppSync::Resolver
     DependsOn: AppSyncApiSchema
@@ -840,9 +769,10 @@ Resources:
         RuntimeVersion: "1.0.0"
 
 #################
-# AppSync - AppSyncApiQueryRecipeGetById
+# AppSync - AppSyncApiQueryRecipeList
 #################
 
+  # Resolver for Query.recipeList API call showing use of nextToken from DynamoDB
   AppSyncApiQueryRecipeList:
     Type: AWS::AppSync::Resolver
     DependsOn: AppSyncApiSchema
@@ -879,6 +809,7 @@ Resources:
 # AppSync - AppSyncApiQueryIngredientUrl
 #################
 
+  # Resolver for Ingredient.url field showing how to resolve any arbitrary type field
   AppSyncApiQueryIngredientUrl:
     Type: AWS::AppSync::Resolver
     DependsOn: AppSyncApiSchema
@@ -915,9 +846,10 @@ Resources:
 
 # #################
 # # AppSync - AppSyncApiMutationRecipeCreate2
-# # direct connection to Lambda
 # #################
 
+  # Resolver for Mutation.recipeCreate2, this API call directly calls Lambda after creation
+  # Showcases sync Lambda call (having to wait for Lambda response)
   AppSyncApiMutationRecipeCreate2:
     Type: AWS::AppSync::Resolver
     DependsOn: AppSyncApiSchema
@@ -956,6 +888,8 @@ Resources:
 # # SQS connection to Lambda
 # #################
 
+  # Resolver for Mutation.recipeCreate3, this API call passes data to SQL, that eventually triggers Lambda
+  # Showcases async Lambda call (you do not have to wait for Lambda response, but there is no response from Lambda)
   AppSyncApiMutationRecipeCreate3:
     Type: AWS::AppSync::Resolver
     DependsOn: AppSyncApiSchema
@@ -999,6 +933,9 @@ Resources:
 #################
 
   # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
+
+  # Lambda function definition
+  # Lambda source code is eventually provided by installation script
   NotifyNewRecipeLambda:
     Type: AWS::Serverless::Function
     Properties:
@@ -1007,15 +944,15 @@ Resources:
           Fn::Sub: ${StackName}
       Description:
         Fn::Sub: Get file upload link (presigned link)
-      # CodeUri: s3://webnt-test-install/fileBucket-def.zip
       Handler: build/index.handler
-      MemorySize: 128
+      MemorySize: 256
       Timeout: 10
       Runtime: nodejs18.x
       Tracing: Active
       FunctionName: "NotifyNewRecipeLambda"
       InlineCode: "//test"
 
+  # Policy allowing triggering Lambda
   AppSyncNotifyNewRecipeLambdaPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
@@ -1030,6 +967,7 @@ Resources:
             Resource:
               Fn::GetAtt: NotifyNewRecipeLambda.Arn
 
+  # Role that can trigger lambda, used form AppSync's Lambda source
   AppSyncNotifyNewRecipeLambdaRole:
     Type: AWS::IAM::Role
     Properties:
@@ -1064,15 +1002,14 @@ Resources:
           Fn::Sub: ${StackName}
       Description:
         Fn::Sub: Get file upload link (presigned link)
-      # CodeUri: s3://webnt-test-install/fileBucket-def.zip
       Handler: build/index.handler
-      MemorySize: 128
+      MemorySize: 256
       Timeout: 10
       Runtime: nodejs18.x
       Tracing: Active
       FunctionName: "NotifyNewRecipeLambda2"
       InlineCode: "//test"
-      Policies: #policies to access additional resources
+      Policies: #policies to access additional resources (SQS in this case)
         - AWSLambdaExecute # Managed Policy
         - Version: '2012-10-17' # Policy Document
           Statement:
@@ -1092,6 +1029,8 @@ Resources:
 ################
 # NotifyNewRecipeLambdaSQS
 ################
+
+  # SQS definition
   NotifyNewRecipeLambda2SQS:
     Type: AWS::SQS::Queue
     DeletionPolicy: Retain
@@ -1112,6 +1051,8 @@ Resources:
         maxReceiveCount: 3 # number of deliveries per 5 minutes until 1 hour
       VisibilityTimeout: 300 # 5 minutes
 
+  # SQS DQL definition
+  # if message cannot be passed from original SQS it ends up in this DQL that you can check for unprocessed messages
   NotifyNewRecipeLambda2SQSDeadletterQueue:
     Type: AWS::SQS::Queue
     DeletionPolicy: Retain
@@ -1125,7 +1066,9 @@ Resources:
         Fn::Sub: ${StackName}-${EnvironmentIdentifier}-notifynewrecipe2-sqs-deadletter
       MessageRetentionPeriod: 1209600 # 14 days
 
-  # SQS Function Mapping
+  # Trigger between SQS and Lambda
+  # SQS is pull based, one must pull messages from SQS
+  # EventSourceMapping is a way how you can have AWS to do it automatically
   NotifyNewRecipeLambda2SQSEventSourceMapping:
     Type: AWS::Lambda::EventSourceMapping
     Properties:
@@ -1140,6 +1083,7 @@ Resources:
           - NotifyNewRecipeLambda2
           - Arn
 
+  # Policy allowing sending message to SQS
   NotifyNewRecipeLambda2SQSPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
@@ -1154,6 +1098,7 @@ Resources:
             Resource:
               - Fn::Sub: ${NotifyNewRecipeLambda2SQS.Arn}
 
+  # Role having the policy allowing sending message to SQS
   AppSyncNotifyNewRecipeLambda2SQSRole:
     Type: AWS::IAM::Role
     Properties:
@@ -1174,6 +1119,7 @@ Resources:
               Service:
                 - appsync.amazonaws.com
 
+  # AppSync SQS source
   NotifyNewRecipeLambda2SQSSource:
     Type: AWS::AppSync::DataSource
     Properties:

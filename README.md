@@ -14,6 +14,7 @@ Repository contains AWS resources to create basic API demo application:
 		* Lambda
 		* SQS
 	* Testing VTL/JS 	resolvers/function time cost
+	* Lambdas
 	
 ## Configuration
 
@@ -27,7 +28,7 @@ Bucked specified as `installBucketName` must already exists (cannot be created b
 
 ### aws/stack/sandbox.yml
 
-File contains the stack itself
+File contains the stack itself. File is commented to understand purpose of every resource.
 
 ## Installation
 
@@ -46,6 +47,15 @@ File contains the stack itself
 
 ### CF template building
 
+CloudFormation requires certain data to be included in the template:
+	* GraphQL schema for AppSync
+	* Code for resolvers templates or function templates / codes
+
+Code/schema directly included is hard to read, TS code cannot be processed (linting, building) and template 
+becomes quite large.
+
+`aws/stack/sandbox.yml` contains placeholders for such data that are filled by installation script.
+
 #### AWS::AppSync::GraphQLSchema
 
 GraphQL schema is build by joining together all files from `Definition` property
@@ -59,6 +69,14 @@ For VTL: Files referenced in `RequestMappingTemplate` and `ResponseMappingTempla
 
 For JS: File referenced in `Code` is used
 For VTL: Files referenced in `RequestMappingTemplate` and `ResponseMappingTemplate` are used
+
+## Lambdas
+
+Lambdas are defined without source code (just with placeholder source code). 
+
+`aws/config/sandbox.template.yml` contains Lambda resources code paths. Code in this path is zipped (into `aws` directory) and used
+uploaded to installation bucket and used as source code (`UpdateFunctionCodeCommand`)
+
 
 ## Testing
 
