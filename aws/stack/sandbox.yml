@@ -464,6 +464,382 @@ Resources:
       ResponseMappingTemplate: './appsync/resolvers/vtl/AppSyncApi/Query.recipeGetById.response.vtl'
 
 #################
+# AppSync - AppSyncApiQueryTestVTL1
+#################
+
+  AppSyncApiQueryTestVTL1:
+    Type: AWS::AppSync::Resolver
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      FieldName: testVTL1
+      DataSourceName:
+        Fn::GetAtt: NoneSource.Name
+      TypeName: Query
+      RequestMappingTemplate: './appsync/resolvers/vtl/AppSyncApi/Query.testVTL1.request.vtl'
+      ResponseMappingTemplate: './appsync/resolvers/vtl/AppSyncApi/Query.testVTL1.response.vtl'
+
+  AppSyncApiQueryTestVTL1Function:
+    Type: AWS::AppSync::FunctionConfiguration
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      FunctionVersion: "2018-05-29"
+      Name: AppSyncApiQueryTestVTL1
+      DataSourceName:
+        Fn::GetAtt: NoneSource.Name
+      RequestMappingTemplate: './appsync/resolvers/vtl/AppSyncApi/Query.testVTL1.request.vtl'
+      ResponseMappingTemplate: './appsync/resolvers/vtl/AppSyncApi/Query.testVTL1.response.vtl'
+
+#################
+# AppSync - AppSyncApiQueryTestVTL10
+#################
+
+  AppSyncApiQueryTestVTL10:
+    Type: AWS::AppSync::Resolver
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      FieldName: testVTL10
+      TypeName: Query
+      Kind: PIPELINE
+      PipelineConfig:
+        Functions:
+          - Fn::GetAtt: AppSyncApiQueryTestVTL1Function.FunctionId
+          - Fn::GetAtt: AppSyncApiQueryTestVTL2Function.FunctionId
+          - Fn::GetAtt: AppSyncApiQueryTestVTL3Function.FunctionId
+          - Fn::GetAtt: AppSyncApiQueryTestVTL4Function.FunctionId
+          - Fn::GetAtt: AppSyncApiQueryTestVTL5Function.FunctionId
+          - Fn::GetAtt: AppSyncApiQueryTestVTL6Function.FunctionId
+          - Fn::GetAtt: AppSyncApiQueryTestVTL7Function.FunctionId
+          - Fn::GetAtt: AppSyncApiQueryTestVTL8Function.FunctionId
+          - Fn::GetAtt: AppSyncApiQueryTestVTL9Function.FunctionId
+          - Fn::GetAtt: AppSyncApiQueryTestVTL10Function.FunctionId
+      RequestMappingTemplate: './appsync/resolvers/vtl/AppSyncApi/empty.request.vtl'
+      ResponseMappingTemplate: './appsync/resolvers/vtl/AppSyncApi/emptyJson.response.vtl'
+
+  AppSyncApiQueryTestVTL2Function:
+    Type: AWS::AppSync::FunctionConfiguration
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      FunctionVersion: "2018-05-29"
+      Name: AppSyncApiQueryTestVTL2Function
+      DataSourceName:
+        Fn::GetAtt: NoneSource.Name
+      RequestMappingTemplate: './appsync/resolvers/vtl/AppSyncApi/Query.testVTL2.request.vtl'
+      ResponseMappingTemplate: './appsync/resolvers/vtl/AppSyncApi/Query.testVTL2.response.vtl'
+
+  AppSyncApiQueryTestVTL3Function:
+    Type: AWS::AppSync::FunctionConfiguration
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      FunctionVersion: "2018-05-29"
+      Name: AppSyncApiQueryTestVTL3Function
+      DataSourceName:
+        Fn::GetAtt: NoneSource.Name
+      RequestMappingTemplate: './appsync/resolvers/vtl/AppSyncApi/Query.testVTL3.request.vtl'
+      ResponseMappingTemplate: './appsync/resolvers/vtl/AppSyncApi/Query.testVTL3.response.vtl'
+
+  AppSyncApiQueryTestVTL4Function:
+    Type: AWS::AppSync::FunctionConfiguration
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      FunctionVersion: "2018-05-29"
+      Name: AppSyncApiQueryTestVTL4Function
+      DataSourceName:
+        Fn::GetAtt: NoneSource.Name
+      RequestMappingTemplate: './appsync/resolvers/vtl/AppSyncApi/Query.testVTL4.request.vtl'
+      ResponseMappingTemplate: './appsync/resolvers/vtl/AppSyncApi/Query.testVTL4.response.vtl'
+
+  AppSyncApiQueryTestVTL5Function:
+    Type: AWS::AppSync::FunctionConfiguration
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      FunctionVersion: "2018-05-29"
+      Name: AppSyncApiQueryTestVTL5Function
+      DataSourceName:
+        Fn::GetAtt: NoneSource.Name
+      RequestMappingTemplate: './appsync/resolvers/vtl/AppSyncApi/Query.testVTL5.request.vtl'
+      ResponseMappingTemplate: './appsync/resolvers/vtl/AppSyncApi/Query.testVTL5.response.vtl'
+
+  AppSyncApiQueryTestVTL6Function:
+    Type: AWS::AppSync::FunctionConfiguration
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      FunctionVersion: "2018-05-29"
+      Name: AppSyncApiQueryTestVTL6Function
+      DataSourceName:
+        Fn::GetAtt: NoneSource.Name
+      RequestMappingTemplate: './appsync/resolvers/vtl/AppSyncApi/Query.testVTL6.request.vtl'
+      ResponseMappingTemplate: './appsync/resolvers/vtl/AppSyncApi/Query.testVTL6.response.vtl'
+
+  AppSyncApiQueryTestVTL7Function:
+    Type: AWS::AppSync::FunctionConfiguration
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      FunctionVersion: "2018-05-29"
+      Name: AppSyncApiQueryTestVTL7Function
+      DataSourceName:
+        Fn::GetAtt: NoneSource.Name
+      RequestMappingTemplate: './appsync/resolvers/vtl/AppSyncApi/Query.testVTL7.request.vtl'
+      ResponseMappingTemplate: './appsync/resolvers/vtl/AppSyncApi/Query.testVTL7.response.vtl'
+
+  AppSyncApiQueryTestVTL8Function:
+    Type: AWS::AppSync::FunctionConfiguration
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      FunctionVersion: "2018-05-29"
+      Name: AppSyncApiQueryTestVTL8Function
+      DataSourceName:
+        Fn::GetAtt: NoneSource.Name
+      RequestMappingTemplate: './appsync/resolvers/vtl/AppSyncApi/Query.testVTL8.request.vtl'
+      ResponseMappingTemplate: './appsync/resolvers/vtl/AppSyncApi/Query.testVTL8.response.vtl'
+
+  AppSyncApiQueryTestVTL9Function:
+    Type: AWS::AppSync::FunctionConfiguration
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      FunctionVersion: "2018-05-29"
+      Name: AppSyncApiQueryTestVTL9Function
+      DataSourceName:
+        Fn::GetAtt: NoneSource.Name
+      RequestMappingTemplate: './appsync/resolvers/vtl/AppSyncApi/Query.testVTL9.request.vtl'
+      ResponseMappingTemplate: './appsync/resolvers/vtl/AppSyncApi/Query.testVTL9.response.vtl'
+
+  AppSyncApiQueryTestVTL10Function:
+    Type: AWS::AppSync::FunctionConfiguration
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      FunctionVersion: "2018-05-29"
+      Name: AppSyncApiQueryTestVTL10Function
+      DataSourceName:
+        Fn::GetAtt: NoneSource.Name
+      RequestMappingTemplate: './appsync/resolvers/vtl/AppSyncApi/Query.testVTL10.request.vtl'
+      ResponseMappingTemplate: './appsync/resolvers/vtl/AppSyncApi/Query.testVTL10.response.vtl'
+
+#################
+# AppSync - AppSyncApiQueryTestJS1
+#################
+
+  AppSyncApiQueryTestJS1:
+    Type: AWS::AppSync::Resolver
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      Code: "./appsync/resolvers/build/AppSyncApi/empty.mjs"
+      FieldName: testJS1
+      Kind: "PIPELINE"
+      PipelineConfig:
+        Functions:
+          - Fn::GetAtt: AppSyncApiQueryTestJS1Function.FunctionId
+      Runtime:
+        Name: "APPSYNC_JS"
+        RuntimeVersion: "1.0.0"
+      TypeName: Query
+
+  AppSyncApiQueryTestJS1Function:
+    Type: AWS::AppSync::FunctionConfiguration
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      FunctionVersion: "2018-05-29"
+      Code: "./appsync/resolvers/build/AppSyncApi/Query.testJS1.mjs"
+      Name: "Query_testJs1"
+      DataSourceName:
+        Fn::GetAtt: NoneSource.Name
+      Runtime:
+        Name: "APPSYNC_JS"
+        RuntimeVersion: "1.0.0"
+
+#################
+# AppSync - AppSyncApiQueryTestJS10
+#################
+
+  AppSyncApiQueryTestJS10:
+    Type: AWS::AppSync::Resolver
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      Code: "./appsync/resolvers/build/AppSyncApi/empty.mjs"
+      FieldName: testJS10
+      Kind: "PIPELINE"
+      PipelineConfig:
+        Functions:
+          - Fn::GetAtt: AppSyncApiQueryTestJS1Function.FunctionId
+          - Fn::GetAtt: AppSyncApiQueryTestJS2Function.FunctionId
+          - Fn::GetAtt: AppSyncApiQueryTestJS3Function.FunctionId
+          - Fn::GetAtt: AppSyncApiQueryTestJS4Function.FunctionId
+          - Fn::GetAtt: AppSyncApiQueryTestJS5Function.FunctionId
+          - Fn::GetAtt: AppSyncApiQueryTestJS6Function.FunctionId
+          - Fn::GetAtt: AppSyncApiQueryTestJS7Function.FunctionId
+          - Fn::GetAtt: AppSyncApiQueryTestJS8Function.FunctionId
+          - Fn::GetAtt: AppSyncApiQueryTestJS9Function.FunctionId
+          - Fn::GetAtt: AppSyncApiQueryTestJS10Function.FunctionId
+      Runtime:
+        Name: "APPSYNC_JS"
+        RuntimeVersion: "1.0.0"
+      TypeName: Query
+
+  AppSyncApiQueryTestJS2Function:
+    Type: AWS::AppSync::FunctionConfiguration
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      FunctionVersion: "2018-05-29"
+      Code: "./appsync/resolvers/build/AppSyncApi/Query.testJS2.mjs"
+      Name: "Query_testJs10_2"
+      DataSourceName:
+        Fn::GetAtt: NoneSource.Name
+      Runtime:
+        Name: "APPSYNC_JS"
+        RuntimeVersion: "1.0.0"
+
+  AppSyncApiQueryTestJS3Function:
+    Type: AWS::AppSync::FunctionConfiguration
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      FunctionVersion: "2018-05-29"
+      Code: "./appsync/resolvers/build/AppSyncApi/Query.testJS3.mjs"
+      Name: "Query_testJs10_3"
+      DataSourceName:
+        Fn::GetAtt: NoneSource.Name
+      Runtime:
+        Name: "APPSYNC_JS"
+        RuntimeVersion: "1.0.0"
+
+  AppSyncApiQueryTestJS4Function:
+    Type: AWS::AppSync::FunctionConfiguration
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      FunctionVersion: "2018-05-29"
+      Code: "./appsync/resolvers/build/AppSyncApi/Query.testJS4.mjs"
+      Name: "Query_testJs10_4"
+      DataSourceName:
+        Fn::GetAtt: NoneSource.Name
+      Runtime:
+        Name: "APPSYNC_JS"
+        RuntimeVersion: "1.0.0"
+
+  AppSyncApiQueryTestJS5Function:
+    Type: AWS::AppSync::FunctionConfiguration
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      FunctionVersion: "2018-05-29"
+      Code: "./appsync/resolvers/build/AppSyncApi/Query.testJS5.mjs"
+      Name: "Query_testJs10_5"
+      DataSourceName:
+        Fn::GetAtt: NoneSource.Name
+      Runtime:
+        Name: "APPSYNC_JS"
+        RuntimeVersion: "1.0.0"
+
+  AppSyncApiQueryTestJS6Function:
+    Type: AWS::AppSync::FunctionConfiguration
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      FunctionVersion: "2018-05-29"
+      Code: "./appsync/resolvers/build/AppSyncApi/Query.testJS6.mjs"
+      Name: "Query_testJs10_6"
+      DataSourceName:
+        Fn::GetAtt: NoneSource.Name
+      Runtime:
+        Name: "APPSYNC_JS"
+        RuntimeVersion: "1.0.0"
+
+  AppSyncApiQueryTestJS7Function:
+    Type: AWS::AppSync::FunctionConfiguration
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      FunctionVersion: "2018-05-29"
+      Code: "./appsync/resolvers/build/AppSyncApi/Query.testJS7.mjs"
+      Name: "Query_testJs10_7"
+      DataSourceName:
+        Fn::GetAtt: NoneSource.Name
+      Runtime:
+        Name: "APPSYNC_JS"
+        RuntimeVersion: "1.0.0"
+
+  AppSyncApiQueryTestJS8Function:
+    Type: AWS::AppSync::FunctionConfiguration
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      FunctionVersion: "2018-05-29"
+      Code: "./appsync/resolvers/build/AppSyncApi/Query.testJS8.mjs"
+      Name: "Query_testJs10_8"
+      DataSourceName:
+        Fn::GetAtt: NoneSource.Name
+      Runtime:
+        Name: "APPSYNC_JS"
+        RuntimeVersion: "1.0.0"
+
+  AppSyncApiQueryTestJS9Function:
+    Type: AWS::AppSync::FunctionConfiguration
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      FunctionVersion: "2018-05-29"
+      Code: "./appsync/resolvers/build/AppSyncApi/Query.testJS9.mjs"
+      Name: "Query_testJs10_9"
+      DataSourceName:
+        Fn::GetAtt: NoneSource.Name
+      Runtime:
+        Name: "APPSYNC_JS"
+        RuntimeVersion: "1.0.0"
+
+  AppSyncApiQueryTestJS10Function:
+    Type: AWS::AppSync::FunctionConfiguration
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      FunctionVersion: "2018-05-29"
+      Code: "./appsync/resolvers/build/AppSyncApi/Query.testJS10.mjs"
+      Name: "Query_testJs10_10"
+      DataSourceName:
+        Fn::GetAtt: NoneSource.Name
+      Runtime:
+        Name: "APPSYNC_JS"
+        RuntimeVersion: "1.0.0"
+
+#################
 # AppSync - AppSyncApiQueryRecipeGetById
 #################
 

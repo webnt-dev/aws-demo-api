@@ -1,0 +1,14 @@
+#set($count = $ctx.prev.result.count + 1)
+#set($time = $util.time.nowEpochMilliSeconds() - $ctx.prev.result.startTimestamp)
+
+{
+	"version": "2017-02-28",
+	"payload": {
+		"count": $count,
+		"endTime": "$util.time.nowISO8601()",
+		"endTimestamp": $util.time.nowEpochMilliSeconds(),
+		"startTime": "${ctx.prev.result.startTime}",
+		"startTimestamp": $ctx.prev.result.startTimestamp,
+		"time": $time
+	}
+}

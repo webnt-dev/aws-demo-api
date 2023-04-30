@@ -230,7 +230,7 @@ const uploadParams: PutObjectCommandInput = {
 
 };
 await s3.send(new PutObjectCommand(uploadParams));
-
+const bucketPath = `https://${bucketName}.s3.${awsConfig.region}.amazonaws.com/${templateFileName}`;
 
 const cfClient = new CloudFormationClient(awsConfig);
 
@@ -277,7 +277,6 @@ console.log(await asClient.send(asCmd));
  */
 logInfo('Validating template');
 try {
-	const bucketPath = `https://${bucketName}.s3.${awsConfig.region}.amazonaws.com/${templateFileName}`;
 	const validate = new ValidateTemplateCommand({
 		TemplateURL: bucketPath,
 	});
@@ -380,7 +379,7 @@ if (createStack) {
 	try {
 		const createCommand = new CreateStackCommand({
 			StackName: stackName,
-			TemplateBody: templateBody,
+			TemplateURL: bucketPath,
 			Capabilities: ['CAPABILITY_IAM', 'CAPABILITY_NAMED_IAM', 'CAPABILITY_AUTO_EXPAND'],
 		});
 		await cfClient.send(createCommand);
@@ -393,7 +392,7 @@ if (createStack) {
 		logInfo(`Updating stack ${stackName}`);
 		const updateCommand = new UpdateStackCommand({
 			StackName: stackName,
-			TemplateBody: templateBody,
+			TemplateURL: bucketPath,
 			Capabilities: ['CAPABILITY_IAM', 'CAPABILITY_NAMED_IAM', 'CAPABILITY_AUTO_EXPAND'],
 		});
 		// const now = (new Date());

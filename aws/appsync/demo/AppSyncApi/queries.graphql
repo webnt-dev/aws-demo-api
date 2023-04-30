@@ -1,0 +1,37 @@
+query  {
+  testVTL1 {
+      count
+      endTime
+      endTimestamp
+      startTime
+      startTimestamp
+      time
+  }
+
+  testVTL10 {
+      count
+      endTime
+      endTimestamp
+      startTime
+      startTimestamp
+      time
+  }
+
+  testJS1 {
+      count
+      endTime
+      endTimestamp
+      startTime
+      startTimestamp
+      time
+  }
+
+  testJS10 {
+      count
+      endTime
+      endTimestamp
+      startTime
+      startTimestamp
+      time
+  }
+}

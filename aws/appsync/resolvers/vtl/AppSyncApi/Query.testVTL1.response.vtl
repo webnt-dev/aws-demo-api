@@ -1,0 +1,10 @@
+#set($count = $ctx.result.count + 1)
+#set($time = $util.time.nowEpochMilliSeconds() - $ctx.result.startTimestamp)
+{
+  "count": $count,
+  "endTime": "$util.time.nowISO8601()",
+	"endTimestamp": $util.time.nowEpochMilliSeconds(),
+  "startTime": "${ctx.result.startTime}",
+  "startTimestamp": $ctx.result.startTimestamp,
+  "time": $time
+}

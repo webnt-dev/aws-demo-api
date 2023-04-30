@@ -1,4 +1,21 @@
+# test result type
 type TestResult {
-	time: Int!
+	# number of resolver templates / function templates
 	count: Int!
+
+	# ISO time of process end
+	endTime: String!
+
+	# time of process end in milliseconds
+	endTimestamp: Long!
+
+	# ISO time of process start
+	startTime: String!
+
+	# time of process start in milliseconds
+	startTimestamp: Long!
+
+	# duration in milliseconds
+	time: Long!
 }
+

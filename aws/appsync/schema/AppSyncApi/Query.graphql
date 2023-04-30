@@ -3,8 +3,11 @@ type Query {
 	recipeGetById_vtl(id: ID!): Recipe
 	recipeList(input: RecipeListInput): RecipeList!
 
-	# testVTL1: TestResult;
-	# testVTL10: TestResult;
+	testVTL1: TestResult!
+	testVTL10: TestResult
+
+	testJS1: TestResult!
+	testJS10: TestResult!
 
 	version: Version
 }

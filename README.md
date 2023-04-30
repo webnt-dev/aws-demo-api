@@ -7,6 +7,11 @@ Repository contains AWS resources to create basic API demo application:
 	* resolvers javaScript and VTL
 	* direct resolvers (using VTL) and pipelines using JavaScript
 	* JS resolvers validation (just commented example)
+	* Connecting resolvers to
+		* DynamoDB
+		* Lambda
+		* SQS
+	* Testing VTL/JS 	resolvers/function time cost
 	
 ## Configuration
 
