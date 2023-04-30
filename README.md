@@ -91,3 +91,7 @@ Some test queries are located at `aws/appsync/demo/AppSyncApi`
 ### Automated test
 
 Automated tests are located at `tests` folder
+
+## API calls
+[Description of API calls, what they do.](./doc/api.md)
+
