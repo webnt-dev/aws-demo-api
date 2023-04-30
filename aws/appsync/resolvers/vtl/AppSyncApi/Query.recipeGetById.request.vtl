@@ -1,0 +1,11 @@
+#if ($ctx.args.id == "") {
+	$util.error('Id cannot be empty string.', 'ApiDemo::Recipe::GetById::InvalidId');
+#end
+
+{
+  "version": "2018-05-29",
+  "operation": "GetItem",
+  "key": {
+    "id": $util.dynamodb.toDynamoDBJson($ctx.args.id),
+  },
+}

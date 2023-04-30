@@ -1,0 +1,4 @@
+type RecipeList {
+	items: [Recipe!]!
+	nextToken: String
+}

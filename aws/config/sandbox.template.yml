@@ -1,0 +1,12 @@
+projectName: 'ApiDemo' # project name
+enviroment: 'sandbox' # environment name (sandbox, beta, etc.)
+stackName: 'apiDemo' # stack name
+awsConfig:
+  region: 'eu-central-1'  # region to deploy to
+  credentials:
+    accessKeyId: 'someAccessKey'  # account access key
+    secretAccessKey: 'someSecretKey' # account secret key
+templateFile: './stack/sandbox.yml' # CloudFormation template file
+installBucketName: 'webnt-install' # S3 bucket to upload assets to (must exist)
+#lambdaSources:
+#  GetFileUploadLinkFunction: 'E:\\work\\AWS\\modules\\FileModule\\lambda\\getFileUploadLink'

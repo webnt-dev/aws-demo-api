@@ -1,0 +1,15 @@
+# Object representing ingredient
+type Ingredient {
+
+	# Ingredient name
+	name: String!
+
+	# Ingredient amount
+	amount: Int!
+
+	# Ingredient amount unit
+	unit: String!
+
+	# Ingredient image URL
+	url: String
+}

@@ -1,0 +1,13 @@
+# Object representing one recipe
+input RecipePatchInput {
+
+	# Cooking time in minutes
+	cookingTime: Int
+
+	# Recipe name
+	name: String
+
+	# Preparation time in minutes
+	preparationTime: Int
+
+}

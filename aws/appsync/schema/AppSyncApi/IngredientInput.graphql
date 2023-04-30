@@ -1,0 +1,12 @@
+# Object representing ingredient
+input IngredientInput {
+
+	# Ingredient name
+	name: String!
+
+	# Ingredient amount
+	amount: Int!
+
+	# Ingredient amount unit
+	unit: String!
+}

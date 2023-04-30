@@ -1,0 +1,5 @@
+api-demo.code-workspace
+**/node_modules/
+aws/config/sandbox.yml
+aws/appsync/resolvers/build/
+

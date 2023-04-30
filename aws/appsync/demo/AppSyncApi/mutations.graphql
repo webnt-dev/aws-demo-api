@@ -1,0 +1,35 @@
+mutation MyMutation {
+  recipeCreate(input: {
+    cookingTime: 150,
+    name: "Ramen",
+    preparationTime: 30,
+    ingredients: [
+      {amount: 1500, name: "Chicken meat & bones", unit: "g"},
+      {amount: 200, name: "Ginger", unit: "g"},
+      {amount: 2, name: "Water", unit: "l"},
+    ]
+  })
+}
+
+mutation MyMutation {
+  r1: recipeCreate(input: {
+    cookingTime: 30,
+    name: "Thai",
+    preparationTime: 20,
+    ingredients: [
+      {amount: 250, name: "Pork rump", unit: "g"},
+      {amount: 200, name: "Mushrooms", unit: "g"},
+      {amount: 1, name: "Shallot", unit: "pcs"},
+    ]
+  })
+
+  r2: recipeCreate(input: {
+    cookingTime: 10,
+    name: "Salmon",
+    preparationTime: 2,
+    ingredients: [
+      {amount: 300, name: "Salmon", unit: "g"},
+    ]
+  })
+}
+

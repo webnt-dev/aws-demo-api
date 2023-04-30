@@ -1,0 +1,10 @@
+# Listing filters
+input RecipeListInput {
+
+	# Listing count
+	limit: Int
+
+	# Listing token returned by function to list next page
+	nextToken: String
+
+}

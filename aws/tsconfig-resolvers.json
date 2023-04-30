@@ -1,0 +1,10 @@
+{
+	"extends": "./tsconfig-base.json",
+  "compilerOptions": {
+    "outDir": "./appsync/resolvers/build",
+    "rootDir": "./appsync/resolvers/src",
+  },
+	"include": [
+		"./appsync/resolvers/src/**/*.mts"
+	],
+}

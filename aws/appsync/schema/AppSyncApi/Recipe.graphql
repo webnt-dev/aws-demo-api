@@ -1,0 +1,25 @@
+# Object representing one recipe
+type Recipe {
+
+	# Cooking time in minutes
+	cookingTime: Int!
+
+	# Date and time of object creation
+	created: AWSDateTime!;
+
+	# Recipe ID
+	id: ID!
+
+	# Recipe ingredients
+	ingredients: [Ingredient!]!
+
+	# Recipe name
+	name: String!;
+
+	# Preparation time in minutes
+	preparationTime: Int!
+
+	# Date and time of last update
+	updated: AWSDateTime!;
+
+}

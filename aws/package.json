@@ -1,0 +1,40 @@
+{
+  "name": "api-demo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.mjs",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint --fix -c .eslintrc ./app/**/*.mts ./appsync/**/*.mts",
+		"build": "tsc --project ./tsconfig-resolvers.json",
+		"sandbox-only": "ts-node-esm --project ./tsconfig.json ./app/index.mts --config=sandbox",
+    "sandbox": "npm run lint && npm run build && npm run sandbox-only",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-cloudformation": "^3.279.0",
+    "@aws-sdk/client-lambda": "^3.279.0",
+    "@aws-sdk/client-s3": "^3.279.0",
+    "crc": "^4.1.1",
+    "glob": "^8.0.3",
+    "yaml": "^2.2.1",
+    "zip-folder": "^1.0.0"
+  },
+  "devDependencies": {
+    "@aws-appsync/eslint-plugin": "^1.0.1",
+    "@aws-appsync/utils": "^1.2.2",
+    "@types/crc": "^3.8.0",
+    "@types/glob": "^8.0.0",
+    "@types/node": "^18.11.9",
+    "@typescript-eslint/eslint-plugin": "^5.44.0",
+    "@typescript-eslint/parser": "^5.44.0",
+    "eslint": "^8.28.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-airbnb-typescript": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.3"
+  }
+}

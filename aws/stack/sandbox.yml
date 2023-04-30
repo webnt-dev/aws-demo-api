@@ -1,0 +1,872 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  StackName:
+    Type: String
+    Default: apidemo
+  EnvironmentIdentifier:
+    Type: String
+    Default: sandbox
+  EnvironmentName:
+    Type: String
+    Default: Sandbox
+  EnvironmentSubdomain:
+    Type: String
+    Default: 'sandbox.'
+
+Resources:
+
+
+# ###################################################
+# # S3
+# ###################################################
+
+# #################
+# # UserFileBucket
+# #################
+
+#   UserFileBucket:
+#     Type: AWS::S3::Bucket
+#     DeletionPolicy: Retain
+#     Properties:
+#       # AccessControl: PublicRead
+#       BucketName:
+#         Fn::Sub: ${StackName}-${EnvironmentIdentifier}-userfiles
+#       CorsConfiguration:
+#         CorsRules:
+#           - AllowedHeaders:
+#               - '*'
+#             AllowedMethods:
+#               - GET
+#               - PUT
+#               # - POST
+#               # - DELETE
+#             AllowedOrigins:
+#               - '*'
+#             ExposedHeaders:
+#               - Date
+#             MaxAge: 3600
+#       # PublicAccessBlockConfiguration:
+#       #   BlockPublicAcls : false
+#       #   BlockPublicPolicy : false
+#       #   IgnorePublicAcls : false
+#       #   RestrictPublicBuckets : false
+
+#   UserFileBucketPolicy2:
+#     Type: AWS::S3::BucketPolicy
+#     Properties:
+#       Bucket:
+#         Ref: UserFileBucket
+#       PolicyDocument:
+#         Version: "2012-10-17"
+#         Statement:
+#           - Effect: Allow
+#             Action:
+#               - "s3:GetObject"
+#             Resource:
+#               - Fn::Sub: "${UserFileBucket.Arn}/*"
+#             Principal: "*"
+
+
+
+###################################################
+# DynamoDb
+###################################################
+
+#################
+# DynamoDb - RecipesTable
+#################
+  RecipesTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName:
+        Fn::Sub: ${StackName}-${EnvironmentIdentifier}-recipe
+      Tags:
+        - Key: "cost-allocation"
+          Value:
+            Fn::Sub: ${StackName}
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: created
+          AttributeType: S
+        - AttributeName: status
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      GlobalSecondaryIndexes:
+        # already in idUser-path-index
+        # - IndexName: idUser-index
+        #   KeySchema:
+        #     - AttributeName: idUser
+        #       KeyType: HASH
+        #   Projection:
+        #     ProjectionType: ALL
+        #parent is actually just path...
+        # - IndexName: idUser-idParent-index
+        #   KeySchema:
+        #     - AttributeName: idUser
+        #       KeyType: HASH
+        #     - AttributeName: idParent
+        #       KeyType: RANGE
+        #   Projection:
+        #     ProjectionType: ALL
+        - IndexName: status-created-index
+          KeySchema:
+            - AttributeName: status
+              KeyType: HASH
+            - AttributeName: created
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+
+  AppSyncRecipesTablePolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: Allows AppSync to access the recipes table.
+      Path: /appsync/
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - dynamodb:GetItem
+              - dynamodb:PutItem
+              - dynamodb:DeleteItem
+              - dynamodb:UpdateItem
+              - dynamodb:Query
+              # - dynamodb:Scan
+              # - dynamodb:BatchGetItem
+              # - dynamodb:BatchWriteItem
+            Resource:
+              Fn::Sub: '${RecipesTable.Arn}*'
+
+  AppSyncRecipesTableRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Tags:
+        - Key: "cost-allocation"
+          Value:
+            Fn::Sub: ${StackName}
+      RoleName:
+        Fn::Sub: ${StackName}-${EnvironmentIdentifier}-appsync-recipes-table-role
+      ManagedPolicyArns:
+        - Ref: AppSyncRecipesTablePolicy
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - sts:AssumeRole
+            Principal:
+              Service:
+                - appsync.amazonaws.com
+
+
+
+  # NoneSource:
+  #   Type: AWS::AppSync::DataSource
+  #   Properties:
+  #     ApiId:
+  #       Fn::GetAtt: AppSyncApi.ApiId
+  #     Name: NoneSource
+  #     Type: NONE
+
+
+
+
+#######################################################
+# AppSync
+#######################################################
+
+#################
+# AppSync - AppSyncApi
+#################
+  AppSyncApi:
+    Type: AWS::AppSync::GraphQLApi
+    Properties:
+      Name:
+        Fn::Sub: ${StackName}-${EnvironmentIdentifier}-api
+      Tags:
+        - Key: "cost-allocation"
+          Value:
+            Fn::Sub: ${StackName}
+      XrayEnabled: true
+      LogConfig: # https://github.com/aws/aws-appsync-community/issues/190
+        CloudWatchLogsRoleArn:
+          Fn::GetAtt: AppSyncCloudWatchRole.Arn
+        ExcludeVerboseContent: FALSE
+        FieldLogLevel: ERROR
+      # AuthenticationType: AWS_IAM
+      # AuthenticationType: AMAZON_COGNITO_USER_POOLS
+      # UserPoolConfig:
+      #   AwsRegion: "eu-central-1"
+      #   DefaultAction: ALLOW
+      #   UserPoolId:
+      #     Ref: UserPool
+      # # https://youtu.be/7PBizBLaUoU?t=840
+      # AdditionalAuthenticationProviders:
+      #   AuthenticationType: AWS_IAM
+      AuthenticationType: API_KEY
+
+  AppSyncApiKey:
+    Type: AWS::AppSync::ApiKey
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+          - AppSyncApi
+          - ApiId
+      # Sat Apr 05 2024 00:00:00 GMT+0000
+      Expires: 1712181600
+
+  AppSyncApiKeyTest:
+    Type: AWS::AppSync::ApiKey
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+          - AppSyncApi
+          - ApiId
+      # Sat Apr 05 2024 00:00:00 GMT+0000
+      Expires: 1712181600
+
+  AppSyncCloudWatchRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Tags:
+        - Key: "cost-allocation"
+          Value:
+            Fn::Sub: ${StackName}
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSAppSyncPushToCloudWatchLogs
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - sts:AssumeRole
+            Principal:
+              Service:
+                - appsync.amazonaws.com
+
+  AppSyncApiSchema:
+    Type: AWS::AppSync::GraphQLSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+          - AppSyncApi
+          - ApiId
+      Definition: './appsync/schema/AppSyncApi/*.graphql'
+
+
+  NoneSource:
+    Type: AWS::AppSync::DataSource
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      Name: NoneSource
+      Type: NONE
+
+  RecipesTableSource:
+    Type: AWS::AppSync::DataSource
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      Name: RecipesTableSource
+      Type: AMAZON_DYNAMODB
+      ServiceRoleArn:
+        Fn::GetAtt: AppSyncRecipesTableRole.Arn
+      DynamoDBConfig:
+        TableName:
+          Ref: RecipesTable
+        AwsRegion:
+          Fn::Sub: "${AWS::Region}"
+
+#################
+# AppSync - AppSyncApiQueryVersion
+#################
+
+  AppSyncApiQueryVersion:
+    Type: AWS::AppSync::Resolver
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      Code: "./appsync/resolvers/build/AppSyncApi/empty.mjs"
+      FieldName: version
+      Kind: "PIPELINE"
+      PipelineConfig:
+        Functions:
+          - Fn::GetAtt: AppSyncApiQueryVersionFunction.FunctionId
+      Runtime:
+        Name: "APPSYNC_JS"
+        RuntimeVersion: "1.0.0"
+      TypeName: Query
+
+  AppSyncApiQueryVersionFunction:
+    Type: AWS::AppSync::FunctionConfiguration
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      FunctionVersion: "2018-05-29"
+      Code: "./appsync/resolvers/build/AppSyncApi/Query.version.mjs"
+      Name: "Query_version"
+      DataSourceName:
+        Fn::GetAtt: NoneSource.Name
+      Runtime:
+        Name: "APPSYNC_JS"
+        RuntimeVersion: "1.0.0"
+
+# #################
+# # AppSync - AppSyncApiMutationRecipeCreate
+# #################
+
+  AppSyncApiMutationRecipeCreate:
+    Type: AWS::AppSync::Resolver
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      Code: "./appsync/resolvers/build/AppSyncApi/empty.mjs"
+      FieldName: recipeCreate
+      Kind: "PIPELINE"
+      PipelineConfig:
+        Functions:
+          - Fn::GetAtt: AppSyncApiMutationRecipeCreateFunction.FunctionId
+      Runtime:
+        Name: "APPSYNC_JS"
+        RuntimeVersion: "1.0.0"
+      TypeName: Mutation
+
+  AppSyncApiMutationRecipeCreateFunction:
+    Type: AWS::AppSync::FunctionConfiguration
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      FunctionVersion: "2018-05-29"
+      Code: "./appsync/resolvers/build/AppSyncApi/Mutation.recipeCreate.mjs"
+      Name: "Mutation_recipeCreate"
+      DataSourceName:
+        Fn::GetAtt: RecipesTableSource.Name
+      Runtime:
+        Name: "APPSYNC_JS"
+        RuntimeVersion: "1.0.0"
+
+# #################
+# # AppSync - AppSyncApiMutationRecipePatch
+# #################
+
+  AppSyncApiMutationRecipePatch:
+    Type: AWS::AppSync::Resolver
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      Code: "./appsync/resolvers/build/AppSyncApi/empty.mjs"
+      FieldName: recipePatch
+      Kind: "PIPELINE"
+      PipelineConfig:
+        Functions:
+          - Fn::GetAtt: AppSyncApiQueryRecipeGetByIdFunction.FunctionId
+          - Fn::GetAtt: AppSyncApiMutationRecipePatchFunction.FunctionId
+      Runtime:
+        Name: "APPSYNC_JS"
+        RuntimeVersion: "1.0.0"
+      TypeName: Mutation
+
+  AppSyncApiMutationRecipePatchFunction:
+    Type: AWS::AppSync::FunctionConfiguration
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      FunctionVersion: "2018-05-29"
+      Code: "./appsync/resolvers/build/AppSyncApi/Mutation.recipePatch.mjs"
+      Name: "Mutation_recipePatch"
+      DataSourceName:
+        Fn::GetAtt: RecipesTableSource.Name
+      Runtime:
+        Name: "APPSYNC_JS"
+        RuntimeVersion: "1.0.0"
+
+#################
+# AppSync - AppSyncApiQueryRecipeGetById
+#################
+
+  AppSyncApiQueryRecipeGetById:
+    Type: AWS::AppSync::Resolver
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      Code: "./appsync/resolvers/build/AppSyncApi/empty.mjs"
+      FieldName: recipeGetById
+      Kind: "PIPELINE"
+      PipelineConfig:
+        Functions:
+          - Fn::GetAtt: AppSyncApiQueryRecipeGetByIdFunction.FunctionId
+      Runtime:
+        Name: "APPSYNC_JS"
+        RuntimeVersion: "1.0.0"
+      TypeName: Query
+
+  AppSyncApiQueryRecipeGetByIdFunction:
+    Type: AWS::AppSync::FunctionConfiguration
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      FunctionVersion: "2018-05-29"
+      Code: "./appsync/resolvers/build/AppSyncApi/Query.recipeGetById.mjs"
+      Name: "Query_recipeGetById"
+      DataSourceName:
+        Fn::GetAtt: RecipesTableSource.Name
+      Runtime:
+        Name: "APPSYNC_JS"
+        RuntimeVersion: "1.0.0"
+
+#################
+# AppSync - AppSyncApiQueryRecipeGetByIdVTL
+#################
+
+  AppSyncApiQueryRecipeGetByIdVTL:
+    Type: AWS::AppSync::Resolver
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      FieldName: recipeGetById_vtl
+      DataSourceName:
+        Fn::GetAtt: RecipesTableSource.Name
+      TypeName: Query
+      RequestMappingTemplate: './appsync/resolvers/vtl/AppSyncApi/Query.recipeGetById.request.vtl'
+      ResponseMappingTemplate: './appsync/resolvers/vtl/AppSyncApi/Query.recipeGetById.response.vtl'
+
+#################
+# AppSync - AppSyncApiQueryRecipeGetById
+#################
+
+  AppSyncApiQueryRecipeList:
+    Type: AWS::AppSync::Resolver
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      Code: "./appsync/resolvers/build/AppSyncApi/empty.mjs"
+      FieldName: recipeList
+      Kind: "PIPELINE"
+      PipelineConfig:
+        Functions:
+          - Fn::GetAtt: AppSyncApiQueryRecipeListFunction.FunctionId
+      Runtime:
+        Name: "APPSYNC_JS"
+        RuntimeVersion: "1.0.0"
+      TypeName: Query
+
+  AppSyncApiQueryRecipeListFunction:
+    Type: AWS::AppSync::FunctionConfiguration
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      FunctionVersion: "2018-05-29"
+      Code: "./appsync/resolvers/build/AppSyncApi/Query.recipeList.mjs"
+      Name: "Query_recipeList"
+      DataSourceName:
+        Fn::GetAtt: RecipesTableSource.Name
+      Runtime:
+        Name: "APPSYNC_JS"
+        RuntimeVersion: "1.0.0"
+
+#################
+# AppSync - AppSyncApiQueryIngredientUrl
+#################
+
+  AppSyncApiQueryIngredientUrl:
+    Type: AWS::AppSync::Resolver
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      Code: "./appsync/resolvers/build/AppSyncApi/empty.mjs"
+      FieldName: url
+      Kind: "PIPELINE"
+      PipelineConfig:
+        Functions:
+          - Fn::GetAtt: AppSyncApiQueryIngredientUrlFunction.FunctionId
+      Runtime:
+        Name: "APPSYNC_JS"
+        RuntimeVersion: "1.0.0"
+      TypeName: Ingredient
+
+  AppSyncApiQueryIngredientUrlFunction:
+    Type: AWS::AppSync::FunctionConfiguration
+    DependsOn: AppSyncApiSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt: AppSyncApi.ApiId
+      FunctionVersion: "2018-05-29"
+      Code: "./appsync/resolvers/build/AppSyncApi/Ingredient.url.mjs"
+      Name: "Ingredient_url"
+      DataSourceName:
+        Fn::GetAtt: NoneSource.Name
+      Runtime:
+        Name: "APPSYNC_JS"
+        RuntimeVersion: "1.0.0"
+
+# #################
+# # AppSync - AppSyncApiMutationFileCreate
+# #################
+
+#   AppSyncApiMutationFileCreate:
+#     Type: AWS::AppSync::Resolver
+#     Properties:
+#       ApiId:
+#         Fn::GetAtt: AppSyncApi.ApiId
+#       Code: "./src/appsync/AppSyncApi/resolvers/empty.js"
+#       FieldName: fileCreate
+#       Kind: "PIPELINE"
+#       PipelineConfig:
+#         Functions:
+#           - Fn::GetAtt: AppSyncApiQueryFileGetByFilePathFunction.FunctionId
+#           - Fn::GetAtt: AppSyncApiMutationFileCreateFunction.FunctionId
+#       Runtime:
+#         Name: "APPSYNC_JS"
+#         RuntimeVersion: "1.0.0"
+#       TypeName: Mutation
+
+#   AppSyncApiMutationFileCreateFunction:
+#     Type: AWS::AppSync::FunctionConfiguration
+#     Properties:
+#       ApiId:
+#         Fn::GetAtt: AppSyncApi.ApiId
+#       FunctionVersion: "2018-05-29"
+#       Code: "./src/appsync/AppSyncApi/resolvers/Mutation.fileCreate.js"
+#       Name: "Mutation_fileCreate"
+#       DataSourceName:
+#         Fn::GetAtt: FilesTableSource.Name
+#       Runtime:
+#         Name: "APPSYNC_JS"
+#         RuntimeVersion: "1.0.0"
+
+# #################
+# # AppSync - AppSyncApiQueryFileGet
+# #################
+
+#   AppSyncApiQueryFileGet:
+#     Type: AWS::AppSync::Resolver
+#     Properties:
+#       ApiId:
+#         Fn::GetAtt: AppSyncApi.ApiId
+#       Code: "./src/appsync/AppSyncApi/resolvers/empty.js"
+#       FieldName: fileGet
+#       Kind: "PIPELINE"
+#       PipelineConfig:
+#         Functions:
+#           - Fn::GetAtt: AppSyncApiQueryFileGetFunction.FunctionId
+#       Runtime:
+#         Name: "APPSYNC_JS"
+#         RuntimeVersion: "1.0.0"
+#       TypeName: Query
+
+#   AppSyncApiQueryFileGetFunction:
+#     Type: AWS::AppSync::FunctionConfiguration
+#     Properties:
+#       ApiId:
+#         Fn::GetAtt: AppSyncApi.ApiId
+#       FunctionVersion: "2018-05-29"
+#       Code: "./src/appsync/AppSyncApi/resolvers/Query.fileGet.js"
+#       Name: "Query_fileGet"
+#       DataSourceName:
+#         Fn::GetAtt: FilesTableSource.Name
+#       Runtime:
+#         Name: "APPSYNC_JS"
+#         RuntimeVersion: "1.0.0"
+
+# #################
+# # AppSync - AppSyncApiMutationFileDelete
+# #################
+
+#   AppSyncApiMutationFileDelete:
+#     Type: AWS::AppSync::Resolver
+#     Properties:
+#       ApiId:
+#         Fn::GetAtt: AppSyncApi.ApiId
+#       Code: "./src/appsync/AppSyncApi/resolvers/empty.js"
+#       FieldName: fileDelete
+#       Kind: "PIPELINE"
+#       PipelineConfig:
+#         Functions:
+#           - Fn::GetAtt: AppSyncApiQueryFileGetFunction.FunctionId
+#           - Fn::GetAtt: AppSyncApiMutationFileDeleteFunction.FunctionId
+#           # - Fn::GetAtt: AppSyncApiQueryFileDeleteS3Function.FunctionId
+#       Runtime:
+#         Name: "APPSYNC_JS"
+#         RuntimeVersion: "1.0.0"
+#       TypeName: Mutation
+
+#   AppSyncApiMutationFileDeleteFunction:
+#     Type: AWS::AppSync::FunctionConfiguration
+#     Properties:
+#       ApiId:
+#         Fn::GetAtt: AppSyncApi.ApiId
+#       FunctionVersion: "2018-05-29"
+#       Code: "./src/appsync/AppSyncApi/resolvers/Mutation.fileDelete.js"
+#       Name: "Mutation_fileDelete"
+#       DataSourceName:
+#         Fn::GetAtt: FilesTableSource.Name
+#       Runtime:
+#         Name: "APPSYNC_JS"
+#         RuntimeVersion: "1.0.0"
+
+#   # AppSyncApiMutationFileDeleteS3Function:
+#   #   Type: AWS::AppSync::FunctionConfiguration
+#   #   Properties:
+#   #     ApiId:
+#   #       Fn::GetAtt: AppSyncApi.ApiId
+#   #     FunctionVersion: "2018-05-29"
+#   #     Code: "./src/appsync/AppSyncApi/resolvers/Mutation.fileDelete.s3.js"
+#   #     Name: "Mutation_fileDelete_s3"
+#   #     DataSourceName:
+#   #       Fn::GetAtt: UserFileBucketFunctionSource.Name
+#   #     Runtime:
+#   #       Name: "APPSYNC_JS"
+#   #       RuntimeVersion: "1.0.0"
+
+
+# #################
+# # AppSync - AppSyncApiMutationFileUpdate
+# #################
+
+#   AppSyncApiMutationFileUpdate:
+#     Type: AWS::AppSync::Resolver
+#     Properties:
+#       ApiId:
+#         Fn::GetAtt: AppSyncApi.ApiId
+#       Code: "./src/appsync/AppSyncApi/resolvers/empty.js"
+#       FieldName: fileUpdate
+#       Kind: "PIPELINE"
+#       PipelineConfig:
+#         Functions:
+#           - Fn::GetAtt: AppSyncApiQueryFileGetByFilePathFunction.FunctionId
+#           - Fn::GetAtt: AppSyncApiMutationFileUpdateXCheckFunction.FunctionId
+#           - Fn::GetAtt: AppSyncApiQueryFileGetFunction.FunctionId
+#           - Fn::GetAtt: AppSyncApiMutationFileUpdateFunction.FunctionId
+#           # - Fn::GetAtt: AppSyncApiQueryFileDeleteS3Function.FunctionId
+#       Runtime:
+#         Name: "APPSYNC_JS"
+#         RuntimeVersion: "1.0.0"
+#       TypeName: Mutation
+
+#   AppSyncApiMutationFileUpdateFunction:
+#     Type: AWS::AppSync::FunctionConfiguration
+#     Properties:
+#       ApiId:
+#         Fn::GetAtt: AppSyncApi.ApiId
+#       FunctionVersion: "2018-05-29"
+#       Code: "./src/appsync/AppSyncApi/resolvers/Mutation.fileUpdate.js"
+#       Name: "Mutation_fileUpdate"
+#       DataSourceName:
+#         Fn::GetAtt: FilesTableSource.Name
+#       Runtime:
+#         Name: "APPSYNC_JS"
+#         RuntimeVersion: "1.0.0"
+
+#   AppSyncApiMutationFileUpdateXCheckFunction:
+#     Type: AWS::AppSync::FunctionConfiguration
+#     Properties:
+#       ApiId:
+#         Fn::GetAtt: AppSyncApi.ApiId
+#       FunctionVersion: "2018-05-29"
+#       Code: "./src/appsync/AppSyncApi/resolvers/Mutation.fileUpdate_check.js"
+#       Name: "Mutation_fileUpdate"
+#       DataSourceName:
+#         Fn::GetAtt: NoneSource.Name
+#       Runtime:
+#         Name: "APPSYNC_JS"
+#         RuntimeVersion: "1.0.0"
+
+# #################
+# # AppSync - AppSyncApiQueryFileGetByFilePath
+# #################
+
+#   AppSyncApiQueryFileGetByFilePath:
+#     Type: AWS::AppSync::Resolver
+#     Properties:
+#       ApiId:
+#         Fn::GetAtt: AppSyncApi.ApiId
+#       Code: "./src/appsync/AppSyncApi/resolvers/empty.js"
+#       FieldName: fileGetByFilePath
+#       Kind: "PIPELINE"
+#       PipelineConfig:
+#         Functions:
+#           - Fn::GetAtt: AppSyncApiQueryFileGetByFilePathFunction.FunctionId
+#       Runtime:
+#         Name: "APPSYNC_JS"
+#         RuntimeVersion: "1.0.0"
+#       TypeName: Query
+
+#   AppSyncApiQueryFileGetByFilePathFunction:
+#     Type: AWS::AppSync::FunctionConfiguration
+#     Properties:
+#       ApiId:
+#         Fn::GetAtt: AppSyncApi.ApiId
+#       FunctionVersion: "2018-05-29"
+#       Code: "./src/appsync/AppSyncApi/resolvers/Query.fileGetByFilePath.js"
+#       Name: "Query_fileGetByFilePath"
+#       DataSourceName:
+#         Fn::GetAtt: FilesTableSource.Name
+#       Runtime:
+#         Name: "APPSYNC_JS"
+#         RuntimeVersion: "1.0.0"
+
+
+# #################
+# # AppSync - AppSyncApiQueryFileList
+# #################
+
+#   AppSyncApiQueryFileList:
+#     Type: AWS::AppSync::Resolver
+#     Properties:
+#       ApiId:
+#         Fn::GetAtt: AppSyncApi.ApiId
+#       Code: "./src/appsync/AppSyncApi/resolvers/empty.js"
+#       FieldName: fileList
+#       Kind: "PIPELINE"
+#       PipelineConfig:
+#         Functions:
+#           - Fn::GetAtt: AppSyncApiQueryFileListFunction.FunctionId
+#       Runtime:
+#         Name: "APPSYNC_JS"
+#         RuntimeVersion: "1.0.0"
+#       TypeName: Query
+
+#   AppSyncApiQueryFileListFunction:
+#     Type: AWS::AppSync::FunctionConfiguration
+#     Properties:
+#       ApiId:
+#         Fn::GetAtt: AppSyncApi.ApiId
+#       FunctionVersion: "2018-05-29"
+#       Code: "./src/appsync/AppSyncApi/resolvers/Query.fileList.js"
+#       Name: "Query_fileList"
+#       DataSourceName:
+#         Fn::GetAtt: FilesTableSource.Name
+#       Runtime:
+#         Name: "APPSYNC_JS"
+#         RuntimeVersion: "1.0.0"
+
+# #################
+# # AppSync - AppSyncApiQueryFileUploadLink
+# #################
+
+#   AppSyncApiQueryFileUploadLink:
+#     Type: AWS::AppSync::Resolver
+#     Properties:
+#       ApiId:
+#         Fn::GetAtt: AppSyncApi.ApiId
+#       Code: "./src/appsync/AppSyncApi/resolvers/empty.js"
+#       FieldName: fileUploadLink
+#       Kind: "PIPELINE"
+#       PipelineConfig:
+#         Functions:
+#           - Fn::GetAtt: AppSyncApiQueryFileGetFunction.FunctionId
+#           - Fn::GetAtt: AppSyncApiQueryFileUploadLinkFunction.FunctionId
+#           # - Fn::GetAtt: AppSyncApiQueryFileDeleteS3Function.FunctionId
+#       Runtime:
+#         Name: "APPSYNC_JS"
+#         RuntimeVersion: "1.0.0"
+#       TypeName: Query
+
+#   AppSyncApiQueryFileUploadLinkFunction:
+#     Type: AWS::AppSync::FunctionConfiguration
+#     Properties:
+#       ApiId:
+#         Fn::GetAtt: AppSyncApi.ApiId
+#       FunctionVersion: "2018-05-29"
+#       Code: "./src/appsync/AppSyncApi/resolvers/Query.fileUploadLink.js"
+#       Name: "Query_fileUploadLink"
+#       DataSourceName:
+#         Fn::GetAtt: GetFileUploadLinkFunctionSource.Name
+#       Runtime:
+#         Name: "APPSYNC_JS"
+#         RuntimeVersion: "1.0.0"
+
+#   GetFileUploadLinkFunctionSource:
+#     Type: AWS::AppSync::DataSource
+#     Properties:
+#       ApiId:
+#         Fn::GetAtt: AppSyncApi.ApiId
+#       LambdaConfig:
+#         LambdaFunctionArn:
+#           Fn::GetAtt: GetFileUploadLinkFunction.Arn
+#       Name: GetFileUploadLinkFunction
+#       Type: AWS_LAMBDA
+#       ServiceRoleArn:
+#         Fn::GetAtt: GetFileUploadLinkFunctionRole2.Arn
+
+#   GetFileUploadLinkFunctionRole2:
+#     Type: AWS::IAM::Role
+#     Properties:
+#       Tags:
+#         - Key: "cost-allocation"
+#           Value:
+#             Fn::Sub: ${StackName}
+#       RoleName:
+#         Fn::Sub: ${StackName}-${EnvironmentIdentifier}-appsync-userfile-uploadlink-bucket-function
+#       ManagedPolicyArns:
+#         - arn:aws:iam::aws:policy/service-role/AWSLambdaRole
+#       AssumeRolePolicyDocument:
+#         Version: 2012-10-17
+#         Statement:
+#           - Effect: Allow
+#             Action:
+#               - sts:AssumeRole
+#             Principal:
+#               Service:
+#                 - appsync.amazonaws.com
+
+
+# ###################################################
+# # Lambdas
+# ###################################################
+
+# #################
+# # GetFileUploadLinkFunction
+# #################
+
+#   # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
+#   GetFileUploadLinkFunction:
+#     Type: AWS::Serverless::Function
+#     Properties:
+#       Tags:
+#         cost-allocation:
+#           Fn::Sub: ${StackName}
+#       Description:
+#         Fn::Sub: Get file upload link (presigned link)
+#       # CodeUri: s3://webnt-test-install/fileBucket-def.zip
+#       Handler: build/index.handler
+#       MemorySize: 512
+#       Timeout: 10
+#       Runtime: nodejs18.x
+#       Tracing: Active
+#       FunctionName: "GetFileUploadLinkFunction"
+#       InlineCode: "//test"
+#       Policies:
+#         - AWSLambdaExecute # Managed Policy
+#         - Version: '2012-10-17' # Policy Document
+#           Statement:
+#             - Effect: Allow
+#               Action:
+#                 - s3:GetObject
+#                 - s3:PutObject
+#                 #- s3:*
+#               Resource:
+#                 - Fn::Sub: ${UserFileBucket.Arn}
+#                 - Fn::Sub: ${UserFileBucket.Arn}/*
+#                 - Fn::Sub: ${UserFileBucket.Arn}/**/*

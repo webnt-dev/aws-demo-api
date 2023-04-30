@@ -1,0 +1,12 @@
+# GraphQL version information
+type Version {
+
+	# API version publish date
+	date: AWSDate!
+
+	serverDateTime: AWSDateTime!
+
+	# GraphQL version
+	version: String!
+
+}

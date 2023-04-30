@@ -1,0 +1,7 @@
+type Query {
+	recipeGetById(id: ID!): Recipe
+	recipeGetById_vtl(id: ID!): Recipe
+	recipeList(input: RecipeListInput): RecipeList!
+
+	version: Version
+}

@@ -1,0 +1,16 @@
+# Object representing one recipe
+input RecipeCreateInput {
+
+	# Cooking time in minutes
+	cookingTime: Int!
+
+	# Recipe ingredients
+	ingredients: [IngredientInput!]!
+
+	# Recipe name
+	name: String!
+
+	# Preparation time in minutes
+	preparationTime: Int!
+
+}
