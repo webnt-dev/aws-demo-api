@@ -26,7 +26,7 @@ Resources:
 # DynamoDb - RecipesTable
 #################
 
-  # basic DynamoDB table to store recipes in
+  # Basic DynamoDB table to store recipes in
   RecipesTable:
     Type: AWS::DynamoDB::Table
     DeletionPolicy: Retain
@@ -100,9 +100,9 @@ Resources:
               Service:
                 - appsync.amazonaws.com
 
-#######################################################
+###################################################
 # AppSync
-#######################################################
+###################################################
 
 #################
 # AppSync - AppSyncApi
@@ -126,7 +126,7 @@ Resources:
         FieldLogLevel: ERROR
       AuthenticationType: API_KEY
 
-  #AppSync cache
+  # AppSync cache
   # AppSyncApiCache:
   #   Type: AWS::AppSync::ApiCache
   #   Properties:
@@ -272,9 +272,9 @@ Resources:
         Name: "APPSYNC_JS"
         RuntimeVersion: "1.0.0"
 
-# #################
-# # AppSync - AppSyncApiMutationRecipeCreate
-# #################
+#################
+# AppSync - AppSyncApiMutationRecipeCreate
+#################
 
   AppSyncApiMutationRecipeCreate:
     Type: AWS::AppSync::Resolver
@@ -308,9 +308,9 @@ Resources:
         Name: "APPSYNC_JS"
         RuntimeVersion: "1.0.0"
 
-# #################
-# # AppSync - AppSyncApiMutationRecipePatch
-# #################
+#################
+# AppSync - AppSyncApiMutationRecipePatch
+#################
 
   # Resolver for Mutation.recipePatch APi call
   # Practical example of pipeline (we check for existence of recipe before updating it)
@@ -862,9 +862,9 @@ Resources:
 
 
 
-# #################
-# # AppSync - AppSyncApiMutationRecipeCreate2
-# #################
+#################
+# AppSync - AppSyncApiMutationRecipeCreate2
+#################
 
   # Resolver for Mutation.recipeCreate2, this API call directly calls Lambda after creation
   # Showcases sync Lambda call (having to wait for Lambda response)
@@ -901,10 +901,10 @@ Resources:
         Name: "APPSYNC_JS"
         RuntimeVersion: "1.0.0"
 
-# #################
-# # AppSync - AppSyncApiMutationRecipeCreate3
-# # SQS connection to Lambda
-# #################
+#################
+# AppSync - AppSyncApiMutationRecipeCreate3
+# SQS connection to Lambda
+#################
 
   # Resolver for Mutation.recipeCreate3, this API call passes data to SQL, that eventually triggers Lambda
   # Showcases async Lambda call (you do not have to wait for Lambda response, but there is no response from Lambda)
