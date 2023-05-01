@@ -1,4 +1,4 @@
-import { util, Context, DynamoDBStringResult, DynamoDBNumberResult } from '@aws-appsync/utils';
+import { util, Context, DynamoDBStringResult, DynamoDBNumberResult, extensions } from '@aws-appsync/utils';
 
 export function request(ctx: Context) {
 
@@ -68,5 +68,9 @@ export function response(ctx: Context) {
 		console.log(JSON.stringify(error));
 		return util.error(error.message, error.type, result);
 	}
+
+	// remove item from cache
+	extensions.evictFromApiCache('Query', 'recipeGetById', { '$context.arguments.id': ctx.args.id });
+
 	return true;
 }

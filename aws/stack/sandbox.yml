@@ -126,6 +126,20 @@ Resources:
         FieldLogLevel: ERROR
       AuthenticationType: API_KEY
 
+  #AppSync cache
+  # AppSyncApiCache:
+  #   Type: AWS::AppSync::ApiCache
+  #   Properties:
+  #     ApiCachingBehavior: PER_RESOLVER_CACHING
+  #     ApiId:
+  #       Fn::GetAtt:
+  #         - AppSyncApi
+  #         - ApiId
+  #     AtRestEncryptionEnabled: false
+  #     TransitEncryptionEnabled: false
+  #     Ttl: 60
+  #     Type: SMALL
+
   # Key to access AppSync using `x-api-key` header
   AppSyncApiDevKey:
     Type: AWS::AppSync::ApiKey
@@ -354,6 +368,10 @@ Resources:
         Name: "APPSYNC_JS"
         RuntimeVersion: "1.0.0"
       TypeName: Query
+      CachingConfig: # cache object based on ID for 2 minutes (if cache enabled)
+        CachingKeys:
+          - "$context.arguments.id"
+        Ttl: 60
 
   AppSyncApiQueryRecipeGetByIdFunction:
     Type: AWS::AppSync::FunctionConfiguration
