@@ -101,6 +101,8 @@ Automated tests are located at `tests` folder (not done yet).
 
 
 ## Todo
-[ ] Tests
-[ ] WebSockets / subscriptions
-[ ] Publish schema in API documentation
+[] Tests
+
+[] WebSockets / subscriptions
+
+[] Publish schema in API documentation
