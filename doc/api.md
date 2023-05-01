@@ -213,6 +213,8 @@ API call retrieve recipe data. Query uses `RecipesTableSource` to query DynamoDB
 
 `recipeGetById` uses JS resolver, `recipeGetById_vtl` uses VTL resolver.
 
+`recipeGetById` is cached, if caching enabled (for 60 seconds). 
+
 ## recipeList
 
 ### Query
@@ -447,3 +449,5 @@ mutation {
 Call pathes recipe. Query uses `RecipesTableSource` to query DynamoDB directly.
 Call changes only passed (not null) properties. Properties, that are `null` are not updated.
 Call showcases pipeline and using `ctx.prev.result`. 
+
+`recipePatch` evicts item from cache so `recipeGetById` can always get new item.
