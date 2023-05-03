@@ -107,3 +107,9 @@ Automated tests are located at `tests` folder (not done yet).
 - [ ] Tests
 - [x] WebSockets / subscriptions
 - [x] Publish schema in API documentation
+
+## Note
+This demo if focused only on AppSync itself and as such should not be used in production:
+* you should not use API key for authentication (Cognito and/or IAM are much better options)
+* API itself is not idempotent (there is no eventId or similar unique command (mutation) identifier making deduplication impossible
+* etc.
