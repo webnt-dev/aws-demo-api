@@ -19,7 +19,7 @@ Repository contains AWS resources to create basic API demo application:
 		* SQS
 	* Testing VTL/JS 	resolvers/function time cost
 	* Lambdas
-	* subscription (real-time)
+	* simple subscription example (real-time)
 
 ## API calls
 [Description of API calls, what they do.](./doc/api.md)
