@@ -1,4 +1,4 @@
-```
+```GraphQL
 # Object representing ingredient
 type Ingredient {
 	# Ingredient name
