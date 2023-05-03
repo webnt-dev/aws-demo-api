@@ -2,6 +2,8 @@
 
 ![Architecture](./aws-demo-api.drawio.png)
 
+![API schema](./schema.md)
+
 ## version
 
 ### Query
