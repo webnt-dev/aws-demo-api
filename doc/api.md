@@ -7,7 +7,7 @@
 ## version
 
 ### Query
-```
+```GraphQL
 query  {
   version {
     date
@@ -18,7 +18,7 @@ query  {
 ```  
 
 ### Response
-```
+```JSON
 {
   "data": {
     "version": {
@@ -35,7 +35,7 @@ Query returns version informations. Query uses `NoneSource`, there is no resourc
 ## testVTL1, testVTL10, testJS1, testJS10
 
 ### Query
-```
+```GraphQL
 query  {
 
   testVTL1 {
@@ -78,7 +78,7 @@ query  {
 ```  
 
 ### Response
-```
+```JSON
 {
   "data": {
     "testVTL1": {
@@ -139,7 +139,7 @@ Query returns version informations. Query uses `NoneSource`, there is no resourc
 ## recipeGetById, recipeGetById_vtl
 
 ### Query
-```
+```GraphQL
 query {
   recipeGetById_vtl(id: "ABC") {
     cookingTime
@@ -175,7 +175,7 @@ query {
 
 ### Response
 
-```
+```JSON
 {
   "data": {
     "r1": null,
@@ -220,7 +220,7 @@ API call retrieve recipe data. Query uses `RecipesTableSource` to query DynamoDB
 ## recipeList
 
 ### Query
-```
+```GraphQL
 query {
   recipeList(input: { limit: 2, nextToken: null }) {
     items {
@@ -244,7 +244,7 @@ query {
 
 ### Response
 
-```
+```JSON
 {
   "data": {
     "recipeList": {
@@ -308,7 +308,7 @@ Function showcases use of paging (limit and nextToken)
 ## recipeCreate
 
 ### Query
-```
+```GraphQL
 mutation {
   recipeCreate(input: {
     cookingTime: 5,
@@ -332,7 +332,7 @@ mutation {
 
 ### Response
 
-```
+```JSON
 {
   "data": {
     "recipeCreate": "74bf2e91-81e6-4a14-a08e-8ee5943d52ff"
@@ -344,7 +344,7 @@ Call creates recipe. Query uses `RecipesTableSource` to query DynamoDB directly.
 ## recipeCreate2
 
 ### Query
-```
+```GraphQL
 mutation {
   recipeCreate2(input: {
     cookingTime: 5,
@@ -368,7 +368,7 @@ mutation {
 
 ### Response
 
-```
+```JSON
 {
   "data": {
     "recipeCreate": "74bf2e91-81e6-4a14-a08e-8ee5943d52ff"
@@ -382,7 +382,7 @@ Lambda is written to take 1 second so the whole processing takes like 1250ms.
 ## recipeCreate3
 
 ### Query
-```
+```GraphQL
 mutation {
   recipeCreate3(input: {
     cookingTime: 5,
@@ -406,7 +406,7 @@ mutation {
 
 ### Response
 
-```
+```JSON
 {
   "data": {
     "recipeCreate": "74bf2e91-81e6-4a14-a08e-8ee5943d52ff"
@@ -422,7 +422,7 @@ This pattern should be used if possible (if you do not need the response from La
 ## recipePatch
 
 ### Query
-```
+```GraphQL
 mutation {
   recipePatch(id: "A", input: {
     cookingTime: 1,
@@ -441,7 +441,7 @@ mutation {
 
 ### Response
 
-```
+```JSON
 {
   "data": {
     "recipePatch": true
