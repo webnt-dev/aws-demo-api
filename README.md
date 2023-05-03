@@ -19,6 +19,7 @@ Repository contains AWS resources to create basic API demo application:
 		* SQS
 	* Testing VTL/JS 	resolvers/function time cost
 	* Lambdas
+	* subscription (real-time)
 
 ## API calls
 [Description of API calls, what they do.](./doc/api.md)
@@ -84,6 +85,8 @@ Lambdas are defined without source code (just with placeholder source code).
 `aws/config/sandbox.template.yml` contains Lambda resources code paths. Code in this path is zipped (into `aws` directory) and used
 uploaded to installation bucket and used as source code (`UpdateFunctionCodeCommand`)
 
+## Subscription
+You can find simple subscription demo in [tests](./tests/html/index.html)
 
 ## Testing
 
@@ -102,5 +105,5 @@ Automated tests are located at `tests` folder (not done yet).
 
 ## Todo
 - [ ] Tests
-- [ ] WebSockets / subscriptions
+- [x] WebSockets / subscriptions
 - [x] Publish schema in API documentation
