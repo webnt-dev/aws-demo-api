@@ -1,13 +1,18 @@
 type Query {
+	# get one recipe based on ID (JavaScript resolver)
 	recipeGetById(id: ID!): Recipe
+	# get one recipe based on ID (VTL resolver)
 	recipeGetById_vtl(id: ID!): Recipe
+	# List recipes
 	recipeList(input: RecipeListInput): RecipeList!
-
+	# test duration of one VTL resolver (VTL templates)
 	testVTL1: TestResult!
+	# test duration of VTL resolver pipeline with 10 functions  (VTL templates)
 	testVTL10: TestResult
-
+	# test duration of JS resolver, pipeline with one JS function
 	testJS1: TestResult!
+	# test duration of JS resolver, pipeline with 10 JS functions
 	testJS10: TestResult!
-
+	# version query
 	version: Version
 }
