@@ -1,0 +1,5 @@
+type Subscription {
+		#subscription to recipeCreate(input: RecipeCreateInput!): ID!
+		onRecipeCreate: ID
+		@aws_subscribe(mutations: ["recipeCreate"])
+}
