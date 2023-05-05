@@ -107,7 +107,7 @@ Automated tests are located at `tests` folder (not done yet).
 
 
 ## Todo
-- [ ] Tests
+- [x] Tests
 - [x] WebSockets / subscriptions
 - [x] Publish schema in API documentation
 - [ ] Complete subscription example 
@@ -119,11 +119,18 @@ This demo if focused only on AppSync itself and as such should not be used in pr
 * etc.
 
 ## ChangeLog
+### version 1.0.2
+2023-05-05 
+```
++ GraphQL tests added
+```
+
 ### version 1.0.1
 2023-05-05 
 ```
 + recipeDelete - delete recipe
 ```
+
 ### version 1.0.0
 2023-04-29 
 initial version
