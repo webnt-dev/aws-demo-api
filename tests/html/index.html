@@ -1,10 +1,21 @@
-<script>
+<script type="module">
+
+// import Config from './config.js';
+
+
+const Config = {
+	API_KEY: 'XX-XXXXXXXXXXXXXXXXXXXXXXX',
+	API_HOST: 'XXXXXXXXXXXXXXX.appsync-api.XXXXXXXXXXXX.amazonaws.com', // GraphQL endpoint HOST (NOT realtime endpoint)
+	API_URL: 'wss://XXXXXXXXXXXXXXX.appsync-realtime-api.XXXXXXXXXXXX.amazonaws.com/graphql' // GraphQL real-time endpoint HOST
+};
+
+
 // https://docs.aws.amazon.com/appsync/latest/devguide/aws-appsync-real-time-data.html
 // https://docs.aws.amazon.com/appsync/latest/devguide/real-time-websocket-client.html
 
 // using API key for auth
-const xApiKey = "XX-XXXXXXXXXXXXXXXXXXXXXXX";
-const host = "XXXXXXXXXXXXXXX.appsync-api.XXXXXXXXXXXX.amazonaws.com"; // GraphQL endpoint HOST (NOT realtime endpoint)
+const xApiKey = Config.API_KEY;
+const host = Config.API_HOST;
 const header = {
 	"host": host,
 	"x-api-key":xApiKey
@@ -13,7 +24,7 @@ const payload = {};
 const uHeader = encodeURIComponent(btoa(JSON.stringify(header)));
 const uPayload = encodeURIComponent(btoa(JSON.stringify(payload)));
 
-const realTimeEndpoint = 'wss://XXXXXXXXXXXXXXX.appsync-realtime-api.XXXXXXXXXXXX.amazonaws.com/graphql' // GraphQL real-time endpoint HOST
+const realTimeEndpoint = Config.API_URL;
 const socket = new WebSocket(`${realTimeEndpoint}?header=${uHeader}&payload=${uPayload}`, ['graphql-ws']);
 
 // subscription query
