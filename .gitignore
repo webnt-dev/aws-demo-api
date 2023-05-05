@@ -4,3 +4,4 @@ aws/config/sandbox.yml
 aws/appsync/resolvers/build/
 
 tests/src/config.ts
+tests/html/config.js
