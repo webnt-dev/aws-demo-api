@@ -30,6 +30,8 @@ type Mutation {
 	recipeCreate3(input: RecipeCreateInput!): ID!
 	# Patch recipe (set new parameters)
 	recipePatch(id: ID!, input: RecipePatchInput!): Boolean!
+	# Delete recipe
+	recipeDelete(id: ID!): Boolean!
 }
 
 type Query {
