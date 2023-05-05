@@ -2,6 +2,7 @@
 https://github.com/webnt-dev/aws-demo-api
 
 [AppSync AWS documentation.](https://docs.aws.amazon.com/appsync/latest/devguide/what-is-appsync.html)
+
 [AppSync CloudFormation AWS documentation.](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/AWS_AppSync.html)
 
 # aws-demo-api
