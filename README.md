@@ -107,6 +107,7 @@ Automated tests are located at `tests` folder (not done yet).
 - [ ] Tests
 - [x] WebSockets / subscriptions
 - [x] Publish schema in API documentation
+- [ ] Complete subscription example 
 
 ## Note
 This demo if focused only on AppSync itself and as such should not be used in production:

@@ -35,11 +35,11 @@ export default {
 	testMatch: [
 		'<rootDir>/src/**/*.mts',
 	],
-	// testPathIgnorePatterns: [
-	// 	'<rootDir>/tests/schema/handler.js',
+	testPathIgnorePatterns: [
+	 	'<rootDir>/src/config*.*',
 	// 	'<rootDir>/tests/testContainer.ts',
 	// 	'<rootDir>/tests/mocks',
-	// ],
+	],
 	maxConcurrency: 1,
 	transform: {
 		"^.+\\.(ts)$": 'ts-jest',
