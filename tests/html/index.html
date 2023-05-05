@@ -22,17 +22,17 @@ const socket = new WebSocket(`${realTimeEndpoint}?header=${uHeader}&payload=${uP
 
 // subscription query
 const subscription = {
-  id: crypto.randomUUID(),
-  payload: {
-    "data": "{\"query\":\"subscription {\\n onRecipeCreate\\n }\",\"variables\":{}}",
+	id: crypto.randomUUID(),
+	payload: {
+		"data": "{\"query\":\"subscription {\\n onRecipeCreate\\n }\",\"variables\":{}}",
 		"extensions": {
 			"authorization": {
 				"x-api-key": xApiKey,
 				"host": host
 				}
 		}
-  },
-  "type": "start"
+	},
+	"type": "start"
 }
 
 const socketSend = (message) => {
@@ -45,13 +45,13 @@ const socketSend = (message) => {
 
 // first message must be { "type": "connection_init" }
 socket.addEventListener("open", (event) => {
-  socketSend({ "type": "connection_init" });
+	socketSend({ "type": "connection_init" });
 });
 
 // you can subscribe if you get `connection_ack` message
 socket.addEventListener("message", (event) => {
 	console.log(`received: ${event.data}`)
-  try {
+	try {
 		const data = JSON.parse(event.data);
 		if (data.type === 'connection_ack') {
 			socketSend(subscription);
@@ -63,7 +63,7 @@ socket.addEventListener("message", (event) => {
 
 /*
 usefull links:
-  https://blog.purple-technology.com/lessons-learned-aws-appsync-subscriptions/
+	https://blog.purple-technology.com/lessons-learned-aws-appsync-subscriptions/
 	https://www.thelambdablog.com/trigger-an-appsync-subscription-with-a-passthrough-local-resolver-and-a-none-data-source-using-cloudformation/
 */
 </script>
