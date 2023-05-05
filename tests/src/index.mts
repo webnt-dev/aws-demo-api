@@ -1,9 +1,4 @@
-
-let Config = {
-	API_KEY: 'YOUR API KEY',
-	API_URL: 'GRAPHQL ENDPOINT',
-};
-
+import Config from './config';
 
 function gql(chunks: TemplateStringsArray, ...variables: any[]): string {
 	return chunks.reduce((accumulator, chunk, index) => `${accumulator}${chunk}${index in variables ? variables[index] : ''}`, '');
