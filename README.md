@@ -117,3 +117,10 @@ This demo if focused only on AppSync itself and as such should not be used in pr
 * you should not use API key for authentication (Cognito and/or IAM are much better options)
 * API itself is not idempotent (there is no eventId or similar unique command (mutation) identifier making deduplication impossible
 * etc.
+
+## ChangeLog
+version 1.0.1 - 2023-05-05 
+```
++ recipeDelete - delete recipe
+```
+version 1.0.0 - 2023-04-29 - initial version
