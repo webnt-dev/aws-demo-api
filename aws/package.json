@@ -11,13 +11,17 @@
     "sandbox": "npm run lint && npm run build && npm run sandbox-only",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
+  "author": {
+    "name": "Bronislav Klučka",
+    "email": "Bronislav.Klucka@webnt.dev"
+  },
+  "license": "BSD-3-Clause",
   "dependencies": {
     "@aws-sdk/client-appsync": "^3.321.1",
     "@aws-sdk/client-cloudformation": "^3.279.0",
     "@aws-sdk/client-lambda": "^3.279.0",
     "@aws-sdk/client-s3": "^3.279.0",
+    "aws-cdk": "^2.78.0",
     "crc": "^4.1.1",
     "glob": "^8.0.3",
     "yaml": "^2.2.1",

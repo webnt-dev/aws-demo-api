@@ -10,8 +10,11 @@
     "test": "jest --ci --runInBand"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": {
+    "name": "Bronislav Klučka",
+    "email": "Bronislav.Klucka@webnt.dev"
+  },
+  "license": "BSD-3-Clause",
   "devDependencies": {
     "@types/jest": "^29.5.0",
     "@types/node": "^18.11.9",
